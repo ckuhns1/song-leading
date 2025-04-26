@@ -10,7 +10,7 @@ __pycache__/
 .vscode/
 
 # macOS system files (optional but good to have)
-.DS_Store
+*.DS_Store
 
 # Logs (optional)
 *.log
