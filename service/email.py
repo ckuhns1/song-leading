@@ -19,6 +19,8 @@ class Email:
             check = input('type the recipient\'s email address to confirm: ')
             if check == self.recipient_email:
                 self.send_email_if_preview_approved('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
+            else:
+                print("Email not sent.")
         else:
             print("Email not sent.")
 
