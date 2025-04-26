@@ -4,8 +4,9 @@ import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from make_list import make_hillview_list_am
+from service.make_list import make_hillview_list_am, make_hillview_list_pm
 
+# Running this script sends an email with the list of songs for the next Sunday; see details at bottom
 
 def get_date_of_sunday():
     today = datetime.date.today()
@@ -37,14 +38,21 @@ def send_email(sender_email, sender_password, recipient_email, subject, body):
     except Exception as e:
         print(f"Failed to send email: {e}")
 
-# Example usage
+
+
 if __name__ == "__main__":
     sender_email = "chalkuhns@gmail.com"  # Replace with your Gmail address
     sender_password = os.getenv('GM_PWD')      # Replace with your Gmail password or app password
     recipient_email = "chalkuhns@gmail.com"  # Replace with the recipient's email address
     
+    date = get_date_of_sunday()
+    subject = f'Songs--{date}'
+    body = make_hillview_list_am(date) + '\r\n\r\n' + make_hillview_list_pm(date)
 
-    subject = f'Songs {get_date_of_sunday()}'
-    body = make_hillview_list_am(get_date_of_sunday())
-
-    send_email(sender_email, sender_password, recipient_email, subject, body)
+    print("This is the email that will be sent:")
+    print('', f'Subject: {subject}', f'Recipient: {recipient_email}', 'Body:', body, sep='\r\n')
+    choice = input("Send? (y/n): ")
+    if choice.lower() == 'y':
+        send_email(sender_email, sender_password, recipient_email, subject, body)
+    else:
+        print("Email not sent.")

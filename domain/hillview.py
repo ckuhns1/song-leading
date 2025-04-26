@@ -21,7 +21,7 @@ class HtSongs:
             self.songs.pop(0).__repr__()
 
     def export_for_email_pm(self):
-        pass
+        return ''
     
     def export_for_email_weds(self):
         pass
