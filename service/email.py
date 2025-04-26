@@ -7,16 +7,18 @@ from email.mime.multipart import MIMEMultipart
 
 class Email:
     def __init__(self, body, recipient_email):
+        self.recipient_email = recipient_email
         self.subject = f'Songs--{self.get_date_of_sunday()}'
         self.body = body
-        self.recipient_email = recipient_email
 
     def preview(self):
         print("This is the email that will be sent:")
         print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', 'Body:', self.body, sep='\r\n')
         choice = input("Send? (y/n): ")
         if choice.lower() == 'y':
-            self.send_email_if_preview_approved('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
+            check = input('type the recipient\'s email address to confirm: ')
+            if check == self.recipient_email:
+                self.send_email_if_preview_approved('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
         else:
             print("Email not sent.")
 
