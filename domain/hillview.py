@@ -3,12 +3,19 @@ from service.repository import Pool
 
 class Song:
     def __init__(self, item):
-        title, number = item.split(', ')[:2]
-        self.title = title
-        self.number = number
+        item = item + ['' for _ in range(6 - len(item))]
+        self.title, self.number = item.pop(0), item.pop(0)
+        self.verses = item.pop(0).split(' ')
+        self.chorus_at_end = True if item.pop(0) == '1' else False
+        self.note = item.pop(0)
 
     def __repr__(self):
-        return f'{self.number}, {self.title}\r\n'
+        temp = f'{self.number} {self.title}'
+        if self.verses != ['']:
+            temp += f' (Vss {", ".join(self.verses)})'
+        if self.chorus_at_end:
+            temp += ', CHORUS once at end only'
+        return  temp + '\r\n'
 
 class AMSongs:
     def __init__(self):
@@ -34,7 +41,7 @@ class PMSongs:
     def __init__(self):
         pool = Pool()
 
-        self.first = Song(rd.choice(pool.first))
+        self.first = Song(rd.choice(pool.general))
         self.prayer = Song(rd.choice(pool.prayer))
 
         self.sermon = Song(rd.choice(pool.general))
