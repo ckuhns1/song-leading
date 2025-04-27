@@ -3,17 +3,13 @@ from service.repository import Pool
 
 class Song:
     def __init__(self, item):
-        item = item + ['' for _ in range(6 - len(item))]
-        self.title, self.number = item.pop(0), item.pop(0)
-        self.verses = item.pop(0).split(' ')
-        self.chorus_at_end = True if item.pop(0) == '1' else False
-        self.note = item.pop(0)
+        item = item + ['' for _ in range(6 - len(item))] # pad end of list with empty strings
+        self.title, self.number = item[0], item[1]
+        self.verses = item[2].split(' ')
+        self.chorus_at_end = True if item[3] == '1' else False
+        self.note = item[4]
 
-    @staticmethod
-    def pick(group):
-        song = rd.choice(group)
-        group.remove(song)
-        return Song(song)
+
 
     def __repr__(self):
         temp = f'{self.number} {self.title}'
@@ -27,13 +23,13 @@ class AMSongs:
     def __init__(self):
         pool = Pool()
 
-        self.first = Song.pick(pool.first)
-        self.prayer = Song.pick(pool.general)
-        self.collection = Song.pick(pool.general)
+        self.first = Song(pool.pick(pool.first))
+        self.prayer = Song(pool.pick(pool.general))
+        self.collection = Song(pool.pick(pool.general))
         
-        self.communion = Song.pick(pool.communion)
-        self.sermon = Song.pick(pool.general)
-        self.invitation = Song.pick(pool.invitation)
+        self.communion = Song(pool.pick(pool.communion))
+        self.sermon = Song(pool.pick(pool.general))
+        self.invitation = Song(pool.pick(pool.invitation))
     
 
     
@@ -50,12 +46,12 @@ class PMSongs:
     def __init__(self):
         pool = Pool()
 
-        self.first = Song.pick(pool.general)
-        self.prayer = Song.pick(pool.general)
+        self.first = Song(pool.pick(pool.general))
+        self.prayer = Song(pool.pick(pool.general))
 
-        self.sermon = Song.pick(pool.general)
-        self.invitation = Song.pick(pool.invitation)
-        self.communion = Song.pick(pool.communion)
+        self.sermon = Song(pool.pick(pool.general))
+        self.invitation = Song(pool.pick(pool.invitation))
+        self.communion = Song(pool.pick(pool.communion))
 
 
     def export_for_email_pm(self):
