@@ -3,7 +3,7 @@ from service.repository import Pool
 
 class Song:
     def __init__(self, item):
-        title, number = item.split(', ')
+        title, number = item.split(', ')[:2]
         self.title = title
         self.number = number
 
