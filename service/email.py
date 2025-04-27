@@ -18,17 +18,18 @@ class Email:
     def preview_and_send(self):
         print("This is the email that will be sent:")
         print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', 'Body:', self.body, sep='\r\n')
+
         choice = input("Send? (y/n): ")
         if choice.lower() == 'y':
-            check = input('type the recipient\'s email address to confirm: ')
+            check = input('type the sender\'s email address to confirm: ')
             if check == self.recipient_email:
-                self.send_email_if_preview_approved('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
+                self.send_email('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
             else:
                 print("Email not sent.")
         else:
             print("Email not sent.")
 
-    def send_email_if_preview_approved(self, sender_email, sender_password, recipient_email, subject, body):
+    def send_email(self, sender_email, sender_password, recipient_email, subject, body):
         try:
             # Set up the MIME
             message = MIMEMultipart()

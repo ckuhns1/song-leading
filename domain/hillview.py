@@ -29,7 +29,7 @@ class AMSongs:
         self.sermon = Song(pool.pick(pool.general))
         self.invitation = Song(pool.pick(pool.invitation))
     
-    def export_for_email_am(self):
+    def export_for_email(self):
         self.songs = [self.first, self.prayer, self.collection, self.communion, self.sermon, self.invitation]
         return 'Sunday AM\r\n' + '\r\n' + self.songs.pop(0).__repr__() + self.songs.pop(0).__repr__() + \
             'OPENING PRAYER\r\n' + \
@@ -50,7 +50,7 @@ class PMSongs:
         self.invitation = Song(pool.pick(pool.invitation))
         self.communion = Song(pool.pick(pool.communion))
 
-    def export_for_email_pm(self):
+    def export_for_email(self):
         self.songs = [self.first, self.prayer, self.sermon, self.invitation, self.communion]
 
         return 'Sunday PM\r\n' + '\r\n' + self.songs.pop(0).__repr__() + self.songs.pop(0).__repr__() + \
@@ -63,7 +63,7 @@ class WedsSongs:
     def __init__(self):
         pass
 
-    def export_for_email_weds(self):
+    def export_for_email(self):
         pass
 
 
@@ -71,7 +71,7 @@ class GospelMeetingSongs:
     def __init__(self):
         pass
 
-    def export_for_email_gospel_meeting(self):
+    def export_for_email(self):
         pass
 
 
@@ -79,5 +79,5 @@ class BaptismSongs:
     def __init__(self):
         pass
 
-    def export_for_email_baptism(self):
+    def export_for_email(self):
         pass
