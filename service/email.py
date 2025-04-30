@@ -14,19 +14,17 @@ class Email:
 
     def preview(self):
         print("This is the email that will be sent:")
-        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', 'Body follows -----------', self.body, sep='\r\n')
+        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', '**************** Body follows ****************', self.body, sep='\r\n')
 
     def preview_and_send(self):
-        print("This is the email that will be sent:")
-        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', 'Body follows -----------', self.body, sep='\r\n')
-
+        self.preview()
         choice = input("Send? (y/n): ")
         if choice.lower() == 'y':
             check = input('type the sender\'s email address to confirm: ')
             if check == self.recipient_email:
                 self.send_email('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
             else:
-                print("Email not sent.")
+                print("Recipient email doesn't match--Email not sent.")
         else:
             print("Email not sent.")
 
@@ -58,4 +56,4 @@ class Email:
         days_until_sunday = (6 - day_of_week) % 7
         next_sunday = today + datetime.timedelta(days=days_until_sunday)
 
-        return next_sunday.strftime('%d %B %Y')  # Format as YYYY-MM-DD
+        return next_sunday.strftime('%-d %B %Y')  # Format as 'dd Month YYYY'
