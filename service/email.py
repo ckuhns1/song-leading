@@ -58,4 +58,4 @@ class Email:
         days_until_sunday = (6 - day_of_week) % 7
         next_sunday = today + datetime.timedelta(days=days_until_sunday)
 
-        return next_sunday.strftime('%d %B %Y')  # Format as YYYY-MM-DD
+        return next_sunday.strftime('%-d %B %Y')  # Format as 'dd Month YYYY'
