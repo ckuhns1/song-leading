@@ -1,4 +1,3 @@
-import os
 import datetime
 
 import smtplib
@@ -7,14 +6,17 @@ from email.mime.multipart import MIMEMultipart
 
 
 class Email:
-    def __init__(self, body, recipient_email):
+    def __init__(self, body, senders_email, recipient_email, password):
+        self.senders_email = senders_email
         self.recipient_email = recipient_email
+        self.password = password
         self.subject = f'Songs--{self.get_date_of_sunday()}'
         self.body = body
 
     def preview(self):
         print("This is the email that will be sent:")
-        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', '**************** Body ****************', self.body, sep='\r\n')
+        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', \
+                '**************** Body ****************', self.body, sep='\r\n')
 
     def preview_and_send(self):
         self.preview()
@@ -23,13 +25,13 @@ class Email:
         if choice.lower() == 'y':
             check = input('type the sender\'s email address to confirm: ')
             if check == self.recipient_email:
-                self.send_email('chalkuhns@gmail.com', os.getenv('GM_PWD'), self.recipient_email, self.subject, self.body)
+                self.send_email(self.senders_email, self.password, self.recipient_email, self.subject, self.body)
             else:
                 print("Recipient email doesn't match--Email not sent.")
         else:
             print("Email not sent.")
 
-    def send_email(self, sender_email, sender_password, recipient_email, subject, body):
+    def send_email(self, senders_email, sender_password, recipient_email, subject, body):
         try:
             # Set up the MIME
             message = MIMEMultipart()
@@ -43,7 +45,7 @@ class Email:
             # Connect to Gmail's SMTP server
             with smtplib.SMTP('smtp.gmail.com', 587) as server:
                 server.starttls()  # Upgrade the connection to secure
-                server.login(sender_email, sender_password)  # Log in to your Gmail account
+                server.login(senders_email, sender_password)  # Log in to your Gmail account
                 server.send_message(message)  # Send the email
 
             print("Email sent successfully!")

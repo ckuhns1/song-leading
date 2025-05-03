@@ -1,10 +1,10 @@
 # Worship Assembly Song Selector
 
-This Python application helps automate the creation and curation of song lists for the assembly of the church. It allows a user to generate randomized lineups customized to their congregation's order of worship, review and revise song selections interactively, and export the finalized order via email.
+This application automates the creation and curation of song lists for the assembly of the church. It generates randomized lineups customized to their congregation's order of worship, reviews and revises song selections interactively, and exports the finalized order via email.
 
 ## 📦 Features
 
-- Load service templates for AM and PM services (e.g., Hillview layout--see design/service_layouts.py)
+- Draws from a repository of categorized songs
 - Automatically select songs for each part of the service
 - Interactive revisions:
   - Randomly replace a song
@@ -20,10 +20,11 @@ This Python application helps automate the creation and curation of song lists f
 project/
 │
 ├── domain/
-│   └── assembly.py       # Song and Service class definitions
+│   └── assembly.py        # Song and Service class definitions
 │
-├── design/
-│   └── service_layouts.py  # Layouts like Hillview (AM/PM song and event mappings)
+├── customize/
+│   └── service_layouts.py  # Service design (AM/PM song and event mappings)
+│   └── connection.py      # Email info for sending songs
 │
 ├── service/
 │   ├── email.py          # Email handling and preview
@@ -40,9 +41,9 @@ project/
 ### 1. Install Requirements
 No external packages are required beyond Python 3.x.
 
-### 2. Run the Application
+### 2. Run the application driver script
 
-```bash
+```
 python master.py
 ```
 
@@ -60,18 +61,18 @@ After all services (e.g., Sunday AM & PM) are confirmed, the program previews th
 
 ## ✍️ Customizing for Your Church
 
-To adapt this app for another congregation:
-1. Create a new class in `design/service_layouts.py` following the `Hillview` example.
+To adapt this app for your congregation:
+1. Create a new class in `customize/service_layouts.py` following the `Hillview` example, or modify that example.
 2. Define:
    - `am_songs`, `pm_songs`: Mapping of service parts to song types
-   - `am_events`, `pm_events`: Ordered service events and how many songs occur before each
-3. Add the new layout to the main driver script (`driver.py`).
+   - `am_events`, `pm_events`: Ordered service events and how many songs occur before the next event
+3. Add the new layout class to the main driver script (`master.py`).
 
 ---
 
 ## ✉️ Email Delivery
 
-Email preview and sending are handled via the `Email` class in `service/email.py`. You can configure the destination address there or in the driver script. (A an app password (from gmail, other) is required to set up sending from one's own address.)
+Email preview and sending are handled via the `Email` class in `service/email.py`. Configure the source & destination addresses in customize/connection.py. (A an app password (from gmail, other) is required to set up sending from an email account.)
 
 ---
 
@@ -92,4 +93,4 @@ Sunday PM:
 
 ## 📬 Contact
 
-Created by Chad Kuhns for use by the Hillview Terrace church of Christ. Adapt and reuse freely for other congregations!
+Created by Chad Kuhns `chalkuhns@gmail.com' for use by the Hillview Terrace church of Christ. Adapt and use freely for your congregation.

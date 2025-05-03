@@ -1,5 +1,6 @@
 from domain.assembly import Song, Service
-from design.service_layouts import Hillview
+from customize.service_layouts import Hillview
+from customize.connection import email_info
 from service.email import Email
 import os
 
@@ -89,7 +90,7 @@ for item in [morning, evening]:
 body = morning.export_for_email() + '\r\n__________________________________________\r\n\r\n' + \
     evening.export_for_email()
 
-email = Email(body, 'chalkuhns@gmail.com')
+email = Email(body, email_info.senders_email, email_info.recipient_email, email_info.password)
 
 clear_terminal()
 email.preview_and_send()
