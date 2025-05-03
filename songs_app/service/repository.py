@@ -23,7 +23,7 @@ class Pool:
                 songs = csv_file.readlines()
                 setattr(self, categ, [song.strip().split(', ') for song in songs if song.strip() != ''])
 
-    def pick(self, group):
+    def pick_new_song_remove(self, group):
         """
         Selects a random song from the given group, removes it from the group, 
         and returns the selected song.
