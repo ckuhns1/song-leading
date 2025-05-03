@@ -14,10 +14,11 @@ class Email:
 
     def preview(self):
         print("This is the email that will be sent:")
-        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', '**************** Body follows ****************', self.body, sep='\r\n')
+        print('', f'Subject: {self.subject}', f'Recipient: {self.recipient_email}', '**************** Body ****************', self.body, sep='\r\n')
 
     def preview_and_send(self):
         self.preview()
+        
         choice = input("Send? (y/n): ")
         if choice.lower() == 'y':
             check = input('type the sender\'s email address to confirm: ')
