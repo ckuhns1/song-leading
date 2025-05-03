@@ -1,12 +1,12 @@
-# Worship Service Song Selector
+# Worship Assembly Song Selector
 
-This Python application helps automate the creation and curation of worship service song lists. It allows a user to generate randomized service lineups, review and revise selections interactively, and export finalized orders via email.
+This Python application helps automate the creation and curation of song lists for the assembly of the church. It allows a user to generate randomized lineups customized to their congregation's order of worship, review and revise song selections interactively, and export the finalized order via email.
 
 ## 📦 Features
 
-- Load service templates for AM and PM services (e.g., Hillview layout)
+- Load service templates for AM and PM services (e.g., Hillview layout--see design/service_layouts.py)
 - Automatically select songs for each part of the service
-- Interactive revision system:
+- Interactive revisions:
   - Randomly replace a song
   - Search and manually choose a replacement
   - Manually specify custom song info
@@ -43,7 +43,7 @@ No external packages are required beyond Python 3.x.
 ### 2. Run the Application
 
 ```bash
-python driver.py
+python master.py
 ```
 
 You will be prompted to:
