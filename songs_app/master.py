@@ -1,39 +1,84 @@
 from domain.assembly import Song, Service
-from songs_app.design.service_layouts import Hillview
+from design.service_layouts import Hillview
 from service.email import Email
 
 # This is the driver flow for the program
 
-# instantiate service classes
+# instantiate service classes with service layouts
 morning = Service(Hillview().am_songs, Hillview().am_events)
 evening = Service(Hillview().pm_songs, Hillview().pm_events)
 
 
 # sample and modify songs
-for item in [morning, evening]:
-    item.export_for_revision() # print the list of songs for review
-    change_nbr = input('Enter number of song to change, or "y" to accept: ')
+
+def apply_random_change(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
     
-    while change_nbr.lower() != 'y':
-        if change_nbr.isdigit():
-            change_nbr = int(change_nbr)
-            if 1 <= change_nbr <= len(morning.songs):
-                # switch the song with a given change number
-                song_to_change = item.order[change_nbr - 1]
-                setattr(item, song_to_change, \
-                        Song(item.pool.pick_new_song_remove(getattr(item.pool, item.types[song_to_change]))))
+    song_to_change = item.order[index - 1]
+    pool = getattr(item.pool, item.types[song_to_change])
+    substitute = item.pool.pick_new_song_remove(pool)
+    setattr(item, song_to_change, Song(substitute))
 
-                print('New list of songs:')
-                item.export_for_revision() # print the revised list for review
+def handle_search(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
 
-                change_nbr = input('Enter number of another song to change, or "y" to accept: ')
-            else:
-                print('Invalid choice. Please enter a number between 1 and', len(item.songs))
-                change_nbr = input('Enter number of song to change, or "y" to accept: ')
+    song_to_change = item.order[index - 1]
+    search = input("Enter any part of song title to search: ").lower()
+    pool = getattr(item.pool, item.types[song_to_change])
+    matches = [s for s in pool if search in s[0].lower()]
+
+    if not matches:
+        print("No matches found.")
+        return
+
+    for i, (title, *_) in enumerate(matches, 1):
+        print(f"({i}) {title}")
+
+    pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
+    if pick.lower() == 'y':
+        return
+
+    if pick.isdigit() and 1 <= int(pick) <= len(matches):
+        substitute = matches[int(pick) - 1]
+        setattr(item, song_to_change, Song(substitute))
+        item.pool.remove_song(pool, substitute)
+
+def handle_manual_entry(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
+
+    song_to_change = item.order[index - 1]
+    title = input("Enter song title: ")
+    number = input("Enter song number: ")
+    verses = input("Enter verse numbers (space-separated, empty for all): ")
+    chorus = input("Chorus at end only? (y/n): ").strip().lower() == 'y'
+    
+    new_song = Song([title, number, verses, '1' if chorus else '0', '', ''])
+    setattr(item, song_to_change, new_song)
+
+def prompt_change(item):
+    while True:
+        item.export_for_revision()
+        change_nbr = input('Enter # of song to randomly change, #* to search, #- to specify, or "y" to accept: ')
+
+        if change_nbr.lower() == 'y':
+            break
+        elif change_nbr.isdigit():
+            apply_random_change(item, int(change_nbr))
+        elif '*' in change_nbr:
+            handle_search(item, int(change_nbr.replace('*', '')))
+        elif '-' in change_nbr:
+            handle_manual_entry(item, int(change_nbr.replace('-', '')))
         else:
-            print('Invalid entry. Please enter "y" to accept, or a number between 1 and', len(item.songs))
-            change_nbr = input('Enter number of song to change, or "y" to accept: ')
+            print('Invalid input. Please try again.')
 
+for item in [morning, evening]:
+    prompt_change(item)            
 
 
 body = morning.export_for_email() + '\r\n__________________________________________\r\n\r\n' + \
