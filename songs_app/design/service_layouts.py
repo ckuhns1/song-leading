@@ -1,3 +1,25 @@
+'''
+The Sunday AM & PM service layouts for Hillview Terrace church of Christ are below, and serve
+as a template for others. To add new layouts:
+
+    1. Create a dictionary for the morning service with keys for each position and values 
+        as the song grouping, matching the categories in infra/.
+
+    2. Create a dictionary for the morning service with keys for each event and values as 
+        a list containing the event description and the number of songs before the next event.
+
+        E.g. {'communion': ['Lord's Supper:', 2]} specifies the Lord's Supper (situated between songs),
+        and there are 2 songs before the next event.
+
+    3. Repeat steps 1 and 2 for the evening service.
+
+    4. Create a class with the name of the church, following the example below.
+
+    5. Add the class to the list of service layouts in master.py. (Alternatively, modify the existing 
+        class to suit the new layout.)
+'''
+
+
 am_songs_hillview = {'first': 'first', # position name: song group (see infra directory)
                         'prayer': 'general',
                         'collection': 'general',

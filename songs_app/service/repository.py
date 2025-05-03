@@ -37,3 +37,13 @@ class Pool:
         song = rd.choice(group)
         group.remove(song)
         return song
+    
+    def remove_song(self, group, song):
+        """
+        Removes a specified song from the given group.
+
+        Args:
+            group (list): A list of songs to remove from.
+            song (Any): The song to be removed from the group.
+        """
+        group.remove(song)
