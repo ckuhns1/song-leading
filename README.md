@@ -1,78 +1,95 @@
-# Song Leading
+# Worship Service Song Selector
 
-Builds a song list and emails it out.
+This Python application helps automate the creation and curation of worship service song lists. It allows a user to generate randomized service lineups, review and revise selections interactively, and export finalized orders via email.
 
-## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
+## 📦 Features
 
-## Overview
-This project automates the process of creating a song list and distributing it via email. It is designed to streamline workflows for song leaders, music directors, or anyone managing song selections for events.
-
-## Features
-- Create and manage song lists.
-- Automatically format song lists for email distribution.
-- Send emails directly from the application.
-- Customizable templates for song lists and email content.
-
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/song-leading.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd song-leading
-   ```
-3. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
-1. Configure the application (see [Configuration](#configuration)).
-2. Run the script to generate and send the song list:
-   ```bash
-   python main.py
-   ```
-3. Follow the prompts to input song details or use a predefined list.
-
-## Configuration
-To set up the application, you need to configure email settings and other parameters:
-
-1. Create a `.env` file in the project root to store sensitive information like email credentials.
-2. Example `.env` file:
-   ```env
-   EMAIL_HOST=smtp.example.com
-   EMAIL_PORT=587
-   EMAIL_USER=your-email@example.com
-   EMAIL_PASSWORD=your-email-password
-   ```
-3. Customize templates or settings in the `config/` directory if applicable.
-
-## Contributing
-Contributions are welcome! To contribute:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes and push the branch:
-   ```bash
-   git commit -m "Add feature-name"
-   git push origin feature-name
-   ```
-4. Open a pull request and provide a detailed description of your changes.
-
-## License
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this project as long as the license terms are followed.
+- Load service templates for AM and PM services (e.g., Hillview layout)
+- Automatically select songs for each part of the service
+- Interactive revision system:
+  - Randomly replace a song
+  - Search and manually choose a replacement
+  - Manually specify custom song info
+- Email service orders in a formatted layout
 
 ---
 
-Feel free to reach out if you have any questions or suggestions for improvement!
+## 🛠️ Project Structure
+
+```
+project/
+│
+├── domain/
+│   └── assembly.py       # Song and Service class definitions
+│
+├── design/
+│   └── service_layouts.py  # Layouts like Hillview (AM/PM song and event mappings)
+│
+├── service/
+│   ├── email.py          # Email handling and preview
+│   └── repository.py     # Song pool for different song groups
+│
+├── master.py             # Main script to run app and email results
+├── README.md             # You're here!
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install Requirements
+No external packages are required beyond Python 3.x.
+
+### 2. Run the Application
+
+```bash
+python driver.py
+```
+
+You will be prompted to:
+- Review a proposed list of songs for the morning and evening services.
+- Make changes using these commands:
+  - `#` : Change that song to a random new one
+  - `#*` : Search for a song containing a word and choose from matches
+  - `#-` : Manually enter a song title, number, and verses
+  - `y` : Accept the current list and move on
+
+After all services (e.g., Sunday AM & PM) are confirmed, the program previews the full email body and sends it upon receiving user confirmation.
+
+---
+
+## ✍️ Customizing for Your Church
+
+To adapt this app for another congregation:
+1. Create a new class in `design/service_layouts.py` following the `Hillview` example.
+2. Define:
+   - `am_songs`, `pm_songs`: Mapping of service parts to song types
+   - `am_events`, `pm_events`: Ordered service events and how many songs occur before each
+3. Add the new layout to the main driver script (`driver.py`).
+
+---
+
+## ✉️ Email Delivery
+
+Email preview and sending are handled via the `Email` class in `service/email.py`. You can configure the destination address there or in the driver script. (A an app password (from gmail, other) is required to set up sending from one's own address.)
+
+---
+
+## 🧩 Example Output
+
+```
+Sunday AM:
+OPENING PRAYER
+  345 Holy, Holy, Holy (Vss 1 2 4), CHORUS once at end only
+COLLECTION
+  123 Just As I Am
+...
+Sunday PM:
+...
+```
+
+---
+
+## 📬 Contact
+
+Created by Chad Kuhns for use by the Hillview Terrace church of Christ. Adapt and reuse freely for other congregations!
