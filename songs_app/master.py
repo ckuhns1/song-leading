@@ -1,6 +1,7 @@
 from domain.assembly import Song, Service
 from design.service_layouts import Hillview
 from service.email import Email
+import os
 
 # This is the driver flow for the program
 
@@ -10,6 +11,9 @@ evening = Service(Hillview().pm_songs, Hillview().pm_events)
 
 
 # sample and modify songs
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def apply_random_change(item, index):
     if not (1 <= index <= len(item.songs)):
@@ -63,6 +67,7 @@ def handle_manual_entry(item, index):
 
 def prompt_change(item):
     while True:
+        clear_terminal()
         item.export_for_revision()
         change_nbr = input('Enter # of song to randomly change, #* to search, #- to specify, or "y" to accept: ')
 
@@ -86,4 +91,5 @@ body = morning.export_for_email() + '\r\n_______________________________________
 
 email = Email(body, 'chalkuhns@gmail.com')
 
+clear_terminal()
 email.preview_and_send()
