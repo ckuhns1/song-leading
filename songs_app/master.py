@@ -3,28 +3,32 @@ from customize.service_layouts import Hillview
 from customize.connection import email_info
 from service.email import Email
 import os
+from time import sleep
 
-# This is the driver flow for the program
 
-# instantiate service classes with service layouts
+# instantiate service classes with service designs
 morning = Service(Hillview().am_songs, Hillview().am_events)
 evening = Service(Hillview().pm_songs, Hillview().pm_events)
 
 
-# sample and modify songs
-
+# helper functions
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def apply_random_change(item, index):
+    # Check if index is valid & alert user if not
     if not (1 <= index <= len(item.songs)):
         print("Invalid song number.")
         return
     
-    song_to_change = item.order[index - 1]
-    pool = getattr(item.pool, item.types[song_to_change])
-    substitute = item.pool.pick_new_song_remove(pool)
-    setattr(item, song_to_change, Song(substitute))
+    song_to_change = item.order[index - 1] # get the position name of the song to be changed--see customize/service_layouts.py
+    pool = getattr(item.pool, item.types[song_to_change]) # load the appropriate song pool
+    if not pool:
+        print("******SONG POOL EMPTY******\r\n"*3)
+        sleep(2)
+        return
+    substitute = item.pool.pick_new_song_remove(pool) # pick a new song and remove it from the pool 
+    setattr(item, song_to_change, Song(substitute)) # set the new song
 
 def handle_search(item, index):
     if not (1 <= index <= len(item.songs)):
@@ -71,11 +75,11 @@ def change_verses(item, index):
         print("Invalid song number.")
         return
     
-    verses = input("Enter new verse numbers (space-separated): ")
+    verses = input("Enter new verse numbers (space-separated): ").strip()
 
     song_to_change = item.order[index - 1]
     song = getattr(item, song_to_change)
-    song.verses = verses.split(' ')
+    song.verses = verses.split(' ') # set new verses
     setattr(item, song_to_change, song)
 
 def change_chorus_end(item, index):
@@ -87,37 +91,57 @@ def change_chorus_end(item, index):
     song.chorus_at_end = not song.chorus_at_end
     setattr(item, song_to_change, song)
 
+def swap_songs(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
+    
+    song1_to_swap = item.order[index - 1]
+    index2 = int(input("Enter song number to swap with: ").strip())
+    song2_to_swap = item.order[index2 - 1]
+
+    song1 = getattr(item, song1_to_swap)
+    song2 = getattr(item, song2_to_swap)
+    setattr(item, song1_to_swap, song2)
+    setattr(item, song2_to_swap, song1)
+
+# main function applied to each Service
 def prompt_change(item):
     while True:
         clear_terminal()
         item.export_for_revision()
         if item.has_duplicates():
-            print('*************DUPLICATES IN LIST****************')
+            print('*************WARNING DUPLICATES IN LIST****************\r\n'*3)
 
-        change_nbr = input('Enter # to swap, #* search, #- specify song, #v change verses, #c change chorus at end, "y" accept: ')
+        change_nbr = input('Enter #s to swap, #f find, #m manual add, #v verses, #c chorus at end, # random, y accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():
             apply_random_change(item, int(change_nbr))
-        elif '*' in change_nbr:
-            handle_search(item, int(change_nbr.replace('*', '')))
-        elif '-' in change_nbr:
-            handle_manual_entry(item, int(change_nbr.replace('-', '')))
+        elif 'f' in change_nbr:
+            handle_search(item, int(change_nbr.replace('f', '')))
+        elif 'm' in change_nbr:
+            handle_manual_entry(item, int(change_nbr.replace('m', '')))
         elif 'v' in change_nbr:
             change_verses(item, int(change_nbr.replace('v', '')))
         elif 'c' in change_nbr:
             change_chorus_end(item, int(change_nbr.replace('c', '')))
+        elif 's' in change_nbr:
+            swap_songs(item, int(change_nbr.replace('s', '')))
         else:
             print('Invalid input. Please try again.')
 
+# kick off song selection for each service
 for item in [morning, evening]:
     prompt_change(item)            
 
-
+# build email body
 body = morning.export_for_email() + '\r\n__________________________________________\r\n\r\n' + \
     evening.export_for_email()
 
+# pass email data to email class
 email = Email(body, email_info.senders_email, email_info.recipient_email, email_info.password)
 
+# preview and send email
 clear_terminal()
 email.preview_and_send()
