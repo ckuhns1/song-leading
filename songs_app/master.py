@@ -66,6 +66,27 @@ def handle_manual_entry(item, index):
     new_song = Song([title, number, verses, '1' if chorus else '0', '', ''])
     setattr(item, song_to_change, new_song)
 
+def change_verses(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
+    
+    verses = input("Enter new verse numbers (space-separated): ")
+
+    song_to_change = item.order[index - 1]
+    song = getattr(item, song_to_change)
+    song.verses = verses.split(' ')
+    setattr(item, song_to_change, song)
+
+def change_chorus_end(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print('Invalid song number.')
+        return
+    song_to_change = item.order[index - 1]
+    song = getattr(item, song_to_change)
+    song.chorus_at_end = not song.chorus_at_end
+    setattr(item, song_to_change, song)
+
 def prompt_change(item):
     while True:
         clear_terminal()
@@ -73,7 +94,7 @@ def prompt_change(item):
         if item.has_duplicates():
             print('*************DUPLICATES IN LIST****************')
 
-        change_nbr = input('Enter # of song to randomly change, #* to search, #- to specify, or "y" to accept: ')
+        change_nbr = input('Enter # to swap, #* search, #- specify song, #v change verses, #c change chorus at end, "y" accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():
@@ -82,6 +103,10 @@ def prompt_change(item):
             handle_search(item, int(change_nbr.replace('*', '')))
         elif '-' in change_nbr:
             handle_manual_entry(item, int(change_nbr.replace('-', '')))
+        elif 'v' in change_nbr:
+            change_verses(item, int(change_nbr.replace('v', '')))
+        elif 'c' in change_nbr:
+            change_chorus_end(item, int(change_nbr.replace('c', '')))
         else:
             print('Invalid input. Please try again.')
 
