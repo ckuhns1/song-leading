@@ -1,5 +1,7 @@
 import os
 
+# enter service design here
+#################################################
 '''
 The Sunday AM & PM service layouts for Hillview Terrace church of Christ are below, and serve
 as a template for others. To add new layouts:
@@ -46,10 +48,12 @@ pm_events_hillview = {'name': ['Sunday PM:', 2],
                             'o_prayer': ['OPENING PRAYER', 1],
                             'sermon': ['SCRIPTURE READING\\SERMON', 2],
                             'c_prayer': ['CLOSING PRAYER', 0]}
+######################################################
+
+
 
 
 # enter address & connection info for sending emails here
-
 ######################################################
 contact_details = {'senders_email': 'chalkuhns@gmail.com',
            'recipient_email': 'chalkuhns@gmail.com',
