@@ -70,8 +70,10 @@ def prompt_change(item):
     while True:
         clear_terminal()
         item.export_for_revision()
-        change_nbr = input('Enter # of song to randomly change, #* to search, #- to specify, or "y" to accept: ')
+        if item.has_duplicates():
+            print('*************DUPLICATES IN LIST****************')
 
+        change_nbr = input('Enter # of song to randomly change, #* to search, #- to specify, or "y" to accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():

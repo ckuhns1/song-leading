@@ -52,5 +52,5 @@ class Service:
                 nbr += 1
         print(temp)
 
-
-
+    def has_duplicates(self):
+        return not len({song.number for song in self.songs}) == len(self.types)
