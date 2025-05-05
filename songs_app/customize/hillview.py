@@ -1,3 +1,5 @@
+import os
+
 '''
 The Sunday AM & PM service layouts for Hillview Terrace church of Christ are below, and serve
 as a template for others. To add new layouts:
@@ -46,6 +48,16 @@ pm_events_hillview = {'name': ['Sunday PM:', 2],
                             'c_prayer': ['CLOSING PRAYER', 0]}
 
 
+# enter address & connection info for sending emails here
+
+######################################################
+contact_details = {'senders_email': 'chalkuhns@gmail.com',
+           'recipient_email': 'chalkuhns@gmail.com',
+           'password': os.getenv('GM_PWD')}     # replace with app password from email account provider
+                                                # if using gmail, create an app password here: https://myaccount.google.com/apppasswords
+                                                # if using outlook, create an app password here: https://account.live.com/proofs/manage
+                                                # if using yahoo, create an app password here: https://login.yahoo.com/account/security
+######################################################
 
 class Hillview:
     def __init__(self):
@@ -53,3 +65,4 @@ class Hillview:
         self.pm_songs = pm_songs_hillview
         self.am_events = am_events_hillview
         self.pm_events = pm_events_hillview
+        self.email_info = contact_details

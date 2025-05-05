@@ -1,6 +1,5 @@
 from domain.assembly import Song, Service
-from customize.service_layouts import Hillview
-from customize.connection import email_info
+from customize.hillview import Hillview
 from service.email import Email
 import os
 from time import sleep
@@ -140,7 +139,7 @@ body = morning.export_for_email() + '\r\n_______________________________________
     evening.export_for_email()
 
 # pass email data to email class
-email = Email(body, email_info.senders_email, email_info.recipient_email, email_info.password)
+email = Email(body, Hillview().email_info['senders_email'], Hillview().email_info['recipient_email'], Hillview().email_info['password'])
 
 # preview and send email
 clear_terminal()
