@@ -16,8 +16,9 @@ __pycache__/
 # Logs (optional)
 *.log
 
-# build artifacts
 # PyInstaller build directories
 /dist/
 /build/
 /*.spec
+
+/*.png
