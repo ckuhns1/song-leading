@@ -16,7 +16,10 @@ __pycache__/
 # Logs (optional)
 *.log
 
-# PyInstaller
+# PyInstaller build directories
+/dist/
 /build/
-dist/
-*.spec
+/*.spec
+
+/*.png
+/resources/

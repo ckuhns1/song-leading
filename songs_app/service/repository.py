@@ -1,27 +1,32 @@
 import os
+import sys
 import random as rd
+
+# used for PyInstaller references
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 class Pool:
     def __init__(self):
         """
         Initializes the repository by reading CSV files from the 'infra' directory.
-        
-        For each CSV file in the 'infra' directory:
-        - The file name (without the '.csv' extension) is used as an attribute name.
-        - The contents of the file are read, with each line split by ', ' and stored as a list of lists.
-        - Empty lines in the file are ignored.
-
-        Attributes:
-            Dynamically creates attributes for each CSV file in the 'infra' directory,
-            where the attribute name corresponds to the file name (without the '.csv' extension),
-            and the value is a list of lists representing the file's contents.
+        Dynamically sets attributes named after each CSV file (without the .csv extension).
         """
-        path = 'infra'
+        path = resource_path('infra')
         for file_ in os.listdir(path):
-            categ = file_.replace('.csv', '')
-            with open(os.path.join(path, file_), 'r') as csv_file:
-                songs = csv_file.readlines()
-                setattr(self, categ, [song.strip().split(', ') for song in songs if song.strip() != ''])
+            if file_.endswith('.csv'):
+                categ = file_.replace('.csv', '')
+                file_path = os.path.join(path, file_)
+                with open(file_path, 'r') as csv_file:
+                    songs = csv_file.readlines()
+                    setattr(self, categ, [song.strip().split(', ') for song in songs if song.strip()])
 
     def pick_new_song_remove(self, group):
         """
