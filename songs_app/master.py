@@ -134,6 +134,9 @@ def list_songs(item, index):
         else: 
             return
 
+def reset_list(item):
+    item.__init__(item.types, item.events)
+    pass
 
 # main function applied to each Service
 def prompt_change(item):
@@ -161,9 +164,7 @@ def prompt_change(item):
         elif 'l' in change_nbr:
             list_songs(item, int(change_nbr.replace('l', '')))
         elif 'r' in change_nbr:
-            item.__init__(item.types, item.events)
-            print(len(item.pool.general))
-            sleep(1)
+            reset_list(item)
         else:
             print('Invalid input. Please try again.')
 
