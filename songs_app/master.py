@@ -104,6 +104,37 @@ def swap_songs(item, index):
     setattr(item, song1_to_swap, song2)
     setattr(item, song2_to_swap, song1)
 
+def list_songs(item, index):
+    if not (1 <= index <= len(item.songs)):
+        print("Invalid song number.")
+        return
+    
+    song_to_change = item.order[index - 1]
+    pool = getattr(item.pool, item.types[song_to_change]) # load the appropriate song pool
+    titles_ = [s[0] for s in pool]
+
+    if not pool:
+        print("******SONG POOL EMPTY******\r\n"*3)
+        sleep(2)
+        return
+    
+    for i, title in enumerate(titles_):
+        print(f'({i+1}) {title}')
+
+    pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
+    if pick.lower() == 'y':
+        return
+    
+    if pick.isdigit() and 1 <= int(pick) <= len(titles_):
+        substitute = pool[int(pick) - 1]
+        confirm = input(f'You selected {Song(substitute).__repr__()}. Enter "y" to confirm or "n" to escape: ').strip()
+        if confirm.lower() == 'y':
+            setattr(item, song_to_change, Song(substitute))
+            item.pool.remove_song(pool, substitute)
+        else: 
+            return
+
+
 # main function applied to each Service
 def prompt_change(item):
     while True:
@@ -112,7 +143,7 @@ def prompt_change(item):
         if item.has_duplicates():
             print('*************WARNING DUPLICATES IN LIST****************\r\n'*3)
 
-        change_nbr = input('Enter #s to swap, #f find, #m manual add, #v verses, #c chorus at end, # random, y accept: ')
+        change_nbr = input('Enter #s swap, #f find, #m manual add, #v verses, #c chorus at end, # random, #l list options, r reset, y accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():
@@ -127,6 +158,12 @@ def prompt_change(item):
             change_chorus_end(item, int(change_nbr.replace('c', '')))
         elif 's' in change_nbr:
             swap_songs(item, int(change_nbr.replace('s', '')))
+        elif 'l' in change_nbr:
+            list_songs(item, int(change_nbr.replace('l', '')))
+        elif 'r' in change_nbr:
+            item.__init__(item.types, item.events)
+            print(len(item.pool.general))
+            sleep(1)
         else:
             print('Invalid input. Please try again.')
 
