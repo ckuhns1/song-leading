@@ -1,6 +1,6 @@
 # Worship Assembly Song Selector
 
-This application automates the creation and curation of song lists for the assembly of the church. It generates randomized lineups customized to their congregation's order of worship, reviews and revises song selections interactively, and exports the finalized order via email.
+This application automates the creation and curation of song lists for the assembly of the church. It generates randomized lineups from Praise for the Lord (c) customized to their congregation's order of worship, reviews and revises song selections interactively, and exports the finalized order via email.
 
 ## 📦 Features
 

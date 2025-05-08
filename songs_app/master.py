@@ -144,6 +144,36 @@ def reset_list(item):
 
 # main function applied to each Service
 def prompt_change(item):
+    """
+    Interactively prompts the user to make changes to a given item through a series of options.
+
+    The function repeatedly clears the terminal, displays the current state of the item for revision,
+    and provides a menu of options for the user to modify the item. The loop continues until the user
+    accepts the changes by entering 'y'.
+
+    Args:
+        item: The object to be modified. It must support the following methods:
+            - export_for_revision(): Displays the current state of the item.
+            - has_duplicates(): Returns a boolean indicating if there are duplicates in the item.
+
+    User Input Options:
+        - #s: Swap songs in the item.
+        - #f: Find a song in the item.
+        - #m: Manually add a song to the item.
+        - #v: Change the verses of a song in the item.
+        - #c: Move the chorus to the end of the item.
+        - # random: Apply a random change to the item.
+        - #l: List available options for the item.
+        - r: Reset the item to its initial state.
+        - y: Accept the current state of the item and exit the loop.
+
+    Notes:
+        - Input validation is performed, and invalid inputs prompt the user to try again.
+        - If duplicates are detected in the item, a warning message is displayed.
+
+    Raises:
+        ValueError: If the input format is invalid for specific operations.
+    """
     while True:
         clear_terminal()
         item.export_for_revision()
@@ -181,7 +211,7 @@ for item in [morning, evening]:
 body = morning.export_for_email() + '\r\n__________________________________________\r\n\r\n' + \
     evening.export_for_email()
 
-# pass email data to email class
+# pass email data to email class (set this info in customize/hillview.py)
 email = Email(body, Hillview().email_info['senders_email'], \
               Hillview().email_info['recipient_email'], Hillview().email_info['password'])
 
