@@ -35,12 +35,17 @@ def handle_search(item, index):
         return
 
     song_to_change = item.order[index - 1]
-    search = input("Enter any part of song title to search: ").lower()
-    pool = getattr(item.pool, item.types[song_to_change])
-    matches = [s for s in pool if search in s[0].lower()]
+    search = input("Enter number or part of song title to search: ").lower()
+    if search.isdigit():
+        pool = getattr(item.pool, item.types[song_to_change])
+        matches = [s for s in pool if search == s[1]]
+    else: 
+        pool = getattr(item.pool, item.types[song_to_change])
+        matches = [s for s in pool if search in s[0].lower()]
 
     if not matches:
-        print("No matches found.")
+        print("*******No matches found*******\r\n"*3)
+        sleep(2)
         return
 
     for i, (title, *_) in enumerate(matches, 1):
@@ -111,21 +116,20 @@ def list_songs(item, index):
     
     song_to_change = item.order[index - 1]
     pool = getattr(item.pool, item.types[song_to_change]) # load the appropriate song pool
-    titles_ = [s[0] for s in pool]
 
     if not pool:
         print("******SONG POOL EMPTY******\r\n"*3)
         sleep(2)
         return
     
-    for i, title in enumerate(titles_):
-        print(f'({i+1}) {title}')
+    for i, song in enumerate(pool, 1):
+        print(f'({i}){' '*(3-len(str(i)))} {song[1]}{' '*(3-len(song[1]))}  {song[0]}')
 
     pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
     if pick.lower() == 'y':
         return
     
-    if pick.isdigit() and 1 <= int(pick) <= len(titles_):
+    if pick.isdigit() and 1 <= int(pick) <= len(pool):
         substitute = pool[int(pick) - 1]
         confirm = input(f'You selected {Song(substitute).__repr__()}. Enter "y" to confirm or "n" to escape: ').strip()
         if confirm.lower() == 'y':
@@ -146,8 +150,8 @@ def prompt_change(item):
         if item.has_duplicates():
             print('*************WARNING: DUPLICATES IN LIST****************\r\n'*3)
 
-        change_nbr = input('Enter #s swap, #f find, #m manual add, #v verses, \
-                           #c chorus at end, # random, #l list options, r reset, y accept: ')
+        change_nbr = input('Enter #s swap, #f find, #m manual add, #v verses, ' +\
+                           '#c chorus at end, # random, #l list options, r reset, y accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():

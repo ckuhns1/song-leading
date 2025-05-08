@@ -26,7 +26,8 @@ class Pool:
                 file_path = os.path.join(path, file_)
                 with open(file_path, 'r') as csv_file:
                     songs = csv_file.readlines()
-                    setattr(self, categ, [song.strip().split(', ') for song in songs if song.strip()])
+                    songs = [song.strip().split(', ') for song in songs if song.strip()]
+                    setattr(self, categ, sorted(songs, key=lambda x: x[0]))
 
     def pick_new_song_remove(self, group):
         """
