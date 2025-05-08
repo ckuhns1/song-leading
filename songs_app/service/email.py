@@ -23,11 +23,9 @@ class Email:
         
         choice = input("Send? (y/n): ")
         if choice.lower() == 'y':
-            check = input('type the sender\'s email address to confirm: ')
-            if check == self.recipient_email:
+            check = input('type "yes" to confirm: ').strip()
+            if check.lower() == 'yes':
                 self.send_email(self.senders_email, self.password, self.recipient_email, self.subject, self.body)
-            else:
-                print("Recipient email doesn't match--Email not sent.")
         else:
             print("Email not sent.")
 
@@ -35,7 +33,7 @@ class Email:
         try:
             # Set up the MIME
             message = MIMEMultipart()
-            message['From'] = 'chalkuhns@gmail.com'
+            message['From'] = senders_email
             message['To'] = recipient_email
             message['Subject'] = subject
 
