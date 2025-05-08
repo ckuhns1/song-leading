@@ -144,9 +144,10 @@ def prompt_change(item):
         clear_terminal()
         item.export_for_revision()
         if item.has_duplicates():
-            print('*************WARNING DUPLICATES IN LIST****************\r\n'*3)
+            print('*************WARNING: DUPLICATES IN LIST****************\r\n'*3)
 
-        change_nbr = input('Enter #s swap, #f find, #m manual add, #v verses, #c chorus at end, # random, #l list options, r reset, y accept: ')
+        change_nbr = input('Enter #s swap, #f find, #m manual add, #v verses, \
+                           #c chorus at end, # random, #l list options, r reset, y accept: ')
         if change_nbr.lower() == 'y':
             break
         elif change_nbr.isdigit():
@@ -177,7 +178,8 @@ body = morning.export_for_email() + '\r\n_______________________________________
     evening.export_for_email()
 
 # pass email data to email class
-email = Email(body, Hillview().email_info['senders_email'], Hillview().email_info['recipient_email'], Hillview().email_info['password'])
+email = Email(body, Hillview().email_info['senders_email'], \
+              Hillview().email_info['recipient_email'], Hillview().email_info['password'])
 
 # preview and send email
 clear_terminal()
