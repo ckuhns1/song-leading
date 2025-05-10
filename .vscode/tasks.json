@@ -31,6 +31,10 @@
                 "--add-data",
                 "songs_app/infra:songs_app/infra",
                 "--icon=songs_app/resources/music.icns",
+                "--distpath",
+                "build_macOS",
+                "--workpath",
+                "build_macOS/build_temp",
                 "songs_app/master.py"
             ],
             "group": {
@@ -41,7 +45,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
-            "detail": "This task builds the macOS executable using PyInstaller with icon and data."
+            "detail": "This task builds the macOS executable into 'build_macOS' using PyInstaller."
         }
     ]
 }

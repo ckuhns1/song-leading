@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/songs_app/master.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/songs_app"
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

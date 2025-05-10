@@ -19,7 +19,7 @@ class Pool:
         Initializes the repository by reading CSV files from the 'infra' directory.
         Dynamically sets attributes named after each CSV file (without the .csv extension).
         """
-        path = resource_path('infra')
+        path = resource_path('songs_app/infra')
         for file_ in os.listdir(path):
             if file_.endswith('.csv'):
                 categ = file_.replace('.csv', '')
