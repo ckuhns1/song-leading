@@ -15,7 +15,7 @@ __pycache__/
 
 # PyInstaller build directories
 /dist/
-/build/
+/build*/
 /*.spec
 
 /*.png
