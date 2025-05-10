@@ -29,18 +29,26 @@ jobs:
         run: |
             pyinstaller `
             --onefile `
+            --name "Songs" `
             --add-data "songs_app/infra;songs_app/infra" `
             --icon="songs_app/resources/music.ico" `
             --distpath build_win `
             --workpath build_win/build_temp `
             songs_app/master.py
 
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Songs
+          path: build_win/Songs.exe
+
       - name: Create GitHub Release for Windows
         uses: softprops/action-gh-release@v1
         with:
-          files: build_win/master.exe
+          files: build_win/Songs.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   build_macos:
     runs-on: macos-latest
