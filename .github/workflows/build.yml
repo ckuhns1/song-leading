@@ -29,7 +29,7 @@ jobs:
         run: |
             pyinstaller `
             --onefile `
-            --name "Songs" `
+            --name "Songs1" `
             --add-data "songs_app/infra;songs_app/infra" `
             --icon="songs_app/resources/music.ico" `
             --distpath build_win `
@@ -40,12 +40,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Songs
-          path: build_win/Songs.exe
+          path: build_win/Songs1.exe
 
       - name: Create GitHub Release for Windows
         uses: softprops/action-gh-release@v1
         with:
-          files: build_win/Songs.exe
+          files: build_win/Songs1.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
