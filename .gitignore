@@ -15,7 +15,7 @@ __pycache__/
 
 # PyInstaller build directories
 /dist/
-**/build_macOS/
+build_macOS/
 /*.spec
 
 /*.png
