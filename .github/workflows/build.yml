@@ -2,7 +2,8 @@ name: Build Executables
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*.*.*'   # Trigger on version tags (e.g., v1.0.0)
   pull_request:
     branches: [main]
 
@@ -34,12 +35,12 @@ jobs:
             --workpath build_win/build_temp `
             songs_app/master.py
 
-
-      - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release for Windows
+        uses: softprops/action-gh-release@v1
         with:
-          name: Songs
-          path: build_win/master.exe
+          files: build_win/master.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_macos:
     runs-on: macos-latest
@@ -66,8 +67,9 @@ jobs:
             --workpath build_macOS/build_temp \
             songs_app/master.py
 
-      - name: Upload macOS Artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release for macOS
+        uses: softprops/action-gh-release@v1
         with:
-          name: macos-executable
-          path: build_macOS/
+          files: build_macOS/master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
