@@ -10,6 +10,10 @@
                 "--add-data",
                 "'songs_app/infra;songs_app/infra'",
                 "--icon='songs_app/resources/music.ico'",
+                "--distpath",
+                "build_win",
+                "--workpath",
+                "build_win/build_temp",
                 "songs_app/master.py"
             ],
             "group": {
