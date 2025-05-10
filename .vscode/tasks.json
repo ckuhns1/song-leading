@@ -1,0 +1,49 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Windows Executable with PyInstaller",
+            "type": "shell",
+            "command": "pyinstaller",
+            "args": [
+                "--onefile",
+                "--add-data",
+                "'songs_app/infra;songs_app/infra'",
+                "--icon='songs_app/resources/music.ico'",
+                "songs_app/master.py"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "This task builds the executable using PyInstaller with icon and data."
+        },
+        {
+            "label": "Build macOS Executable with PyInstaller",
+            "type": "shell",
+            "command": "pyinstaller",
+            "args": [
+                "--onefile",
+                "--add-data",
+                "songs_app/infra:songs_app/infra",
+                "--icon=songs_app/resources/music.icns",
+                "songs_app/master.py"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "This task builds the macOS executable using PyInstaller with icon and data."
+        }
+    ]
+}
+
+
