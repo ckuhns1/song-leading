@@ -79,7 +79,7 @@ jobs:
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Songs
+          name: Songs2
           path: build_macOS/Songs
 
       - name: Create GitHub Release for macOS
