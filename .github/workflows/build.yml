@@ -1,0 +1,72 @@
+name: Build Windows and macOS Executables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_windows:
+    name: Build on Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install PyInstaller
+        run: |
+          pip install pyinstaller
+
+      - name: Build Windows Executable
+        run: |
+          pyinstaller --onefile ^
+            --add-data "songs_app/infra;songs_app/infra" ^
+            --icon="songs_app/resources/music.ico" ^
+            --distpath build_win ^
+            --workpath build_win/build_temp ^
+            songs_app/master.py
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-executable
+          path: build_win/
+
+  build_macos:
+    name: Build on macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install PyInstaller
+        run: |
+          pip install pyinstaller
+
+      - name: Build macOS Executable
+        run: |
+          pyinstaller --onefile \
+            --add-data "songs_app/infra:songs_app/infra" \
+            --icon="songs_app/resources/music.icns" \
+            --distpath build_macOS \
+            --workpath build_macOS/build_temp \
+            songs_app/master.py
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-executable
+          path: build_macOS/
