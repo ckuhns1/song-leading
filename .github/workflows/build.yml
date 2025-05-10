@@ -70,14 +70,22 @@ jobs:
         run: |
           pyinstaller --onefile \
             --add-data "songs_app/infra:songs_app/infra" \
+            --name "Songs" \
             --icon="songs_app/resources/music.icns" \
             --distpath build_macOS \
             --workpath build_macOS/build_temp \
             songs_app/master.py
 
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Songs
+          path: build_macOS/Songs
+
       - name: Create GitHub Release for macOS
         uses: softprops/action-gh-release@v1
         with:
-          files: build_macOS/master
+          files: build_macOS/Songs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
