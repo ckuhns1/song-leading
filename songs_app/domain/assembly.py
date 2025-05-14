@@ -3,7 +3,7 @@ from service.repository import Pool
 class Song:
     def __init__(self, item):
         item = item + ['' for _ in range(6 - len(item))] # pad end of list with empty strings
-        self.title, self.number = item[0], item[1]
+        self.title, self.number = item[0].title(), item[1]
         self.verses = item[2].split(' ')
         self.chorus_at_end = True if item[3] == '1' else False
         self.note = item[4]
