@@ -50,6 +50,40 @@
             },
             "problemMatcher": [],
             "detail": "This task builds the macOS executable into 'build_macOS' using PyInstaller."
+        },
+            {"label": "Load dependencies",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "requirements.txt"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Streamlit App",
+            "type": "shell",
+            "command": "streamlit",
+            "args": ["run", "songs_app/master_stream.py"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
         }
     ]
 }

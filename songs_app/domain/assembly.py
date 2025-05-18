@@ -1,4 +1,5 @@
 from service.repository import Pool
+import streamlit as st
 
 class Song:
     def __init__(self, item):
@@ -9,12 +10,21 @@ class Song:
         self.note = item[4]
 
     def __repr__(self):
-        temp = ' '*(3-len(self.number)) + f'{self.number} {self.title}'
+        pad_length = 3 - len(self.number)
+        nbsp = "&nbsp;" * pad_length
+        temp = f" **{nbsp}{self.number} -- {self.title}**"
+
         if self.verses != ['']:
-            temp += f' (Vss {", ".join(self.verses)})'
+            temp += f"   (_Verses: {', '.join(self.verses)}_)"
+
         if self.chorus_at_end:
-            temp += ', CHORUS once at end only'
-        return  '  ' + temp + '\r\n'
+            temp += "   (((_Chorus at end only_)))"
+
+        return temp + "  \n"
+
+
+
+
 
 
 class Service:
@@ -43,14 +53,19 @@ class Service:
         return temp
     
     def export_for_revision(self):
-        temp = ''
+        temp = "---"
         nbr = 0
         for item in self.events.values():
-            temp += item[0] + '\r\n'
+            temp += f"\n## {item[0]}\n\n"
+            temp += "---\r\n" if nbr == 0 else ""   # Section header with blank lines around
             for _ in range(item[1]):
-                temp += f'({str(nbr+1)})' + self.songs[nbr].__repr__()
+                ref = f"**`({nbr + 1})`**"   # Reference number bold with backticks
+                temp += f"{ref} {self.songs[nbr].__repr__()}\n"
                 nbr += 1
-        print(temp)
+        return temp
 
+
+
+    
     def has_duplicates(self):
         return not len({song.number for song in self.songs}) == len(self.types)
