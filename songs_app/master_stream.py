@@ -121,7 +121,7 @@ def list_songs(item, index):
         return
     
     for i, song in enumerate(pool, 1):
-        print(f'({i}){' '*(3-len(str(i)))} {song[1]}{' '*(3-len(song[1]))}  {song[0]}')
+        print(f'({i}){" "*(3-len(str(i)))} {song[1]}{" "*(3-len(song[1]))}  {song[0]}')
 
     pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
     if pick.lower() == 'y':
