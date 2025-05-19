@@ -53,7 +53,7 @@ class Service:
         return temp
     
     def export_for_revision(self):
-        temp = "---"
+        temp = ''
         nbr = 0
         for item in self.events.values():
             temp += f"\n## {item[0]}\n\n"

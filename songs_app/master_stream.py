@@ -5,15 +5,13 @@ from service.email import Email
 import os
 from time import sleep
 
-st.sidebar.header("Modify the service here:")
-
+st.set_page_config("Songs 4 U", layout="wide")
+st.sidebar.header("Modify active service:")
 
 
 if 'morning' not in st.session_state:
     st.session_state.morning = Service(Hillview().am_songs, Hillview().am_events)
 
-if 'change_rand' not in st.session_state:
-    st.session_state.change_rand = ''
 
 # st.code(st.session_state.morning.export_for_revision(), language='text')
 st.markdown(st.session_state.morning.export_for_revision())
@@ -81,40 +79,33 @@ def handle_manual_entry(item, index):
     new_song = Song([title, number, verses, '1' if chorus else '0', '', ''])
     setattr(item, song_to_change, new_song)
 
-def change_verses(item, index):
-    if not (1 <= index <= len(item.songs)):
-        print("Invalid song number.")
-        return
-    
-    verses = input("Enter new verse numbers (space-separated): ").strip()
+def change_verses(item, index, verses):
+    if (1 <= index <= len(item.songs)):
+        song_to_change = item.order[index - 1]
+        song = getattr(item, song_to_change)
 
-    song_to_change = item.order[index - 1]
-    song = getattr(item, song_to_change)
-    song.verses = verses.split(' ') # set new verses
-    setattr(item, song_to_change, song)
+        song.verses = verses
+        setattr(item, song_to_change, song)
 
-def change_chorus_end(item, index):
-    if not (1 <= index <= len(item.songs)):
-        print('Invalid song number.')
-        return
-    song_to_change = item.order[index - 1]
-    song = getattr(item, song_to_change)
-    song.chorus_at_end = not song.chorus_at_end
-    setattr(item, song_to_change, song)
+def toggle_chorus(item, index):
+    if (1 <= index <= len(item.songs)):
+        song_to_change = item.order[index - 1]
+        song = getattr(item, song_to_change)
+        song.chorus_at_end = not song.chorus_at_end
+        setattr(item, song_to_change, song)
+        st.session_state.toggle_chorus = ''
 
 def swap_songs(item, index):
-    if not (1 <= index <= len(item.songs)):
-        print("Invalid song number.")
-        return
-    
-    song1_to_swap = item.order[index - 1]
-    index2 = int(input("Enter song number to swap with: ").strip())
-    song2_to_swap = item.order[index2 - 1]
+    if all([(1 <= nbr <= len(item.songs)) for nbr in index]):
+        song1_to_swap = item.order[index[0] - 1]
+        song2_to_swap = item.order[index[1] - 1]
 
-    song1 = getattr(item, song1_to_swap)
-    song2 = getattr(item, song2_to_swap)
-    setattr(item, song1_to_swap, song2)
-    setattr(item, song2_to_swap, song1)
+        song1 = getattr(item, song1_to_swap)
+        song2 = getattr(item, song2_to_swap)
+        setattr(item, song1_to_swap, song2)
+        setattr(item, song2_to_swap, song1)
+
+        st.session_state.swap = ''
 
 def list_songs(item, index):
     if not (1 <= index <= len(item.songs)):
@@ -145,6 +136,7 @@ def list_songs(item, index):
         else: 
             return
 
+
 def reset_list():
     del st.session_state['morning']
     st.session_state.morning = Service(Hillview().am_songs, Hillview().am_events)
@@ -152,55 +144,69 @@ def reset_list():
 
 def submit_rand():
     user_input = st.session_state.change_rand
-    apply_random_change(st.session_state.morning, int(user_input))
+    if user_input.isdigit():
+        apply_random_change(st.session_state.morning, int(user_input))
+    else: 
+        st.session_state.change_rand = ''
 
+def submit_chorus_toggle():
+    user_input = st.session_state.toggle_chorus
+    if user_input.isdigit():
+        toggle_chorus(st.session_state.morning, int(user_input))
+    else: 
+        st.session_state.toggle_chorus = ''
+
+def submit_swap():
+    user_input = st.session_state.swap
+    if ' ' in user_input and user_input.replace(' ', '').isdigit():
+        temp = user_input.split(' ')
+        user_input = list(map(int, temp))
+        swap_songs(st.session_state.morning, user_input)
+    else: 
+        st.session_state.swap = ''
+
+def submit_verses_change():
+    user_input = st.session_state.verses
+    temp = user_input.split(' ')
+    user_input = list(map(int, temp))
+
+    change_verses(st.session_state.morning, int(options.index(st.session_state.song_nbr)), st.session_state.verses)
+    
 
 if st.sidebar.button('Renew'):
     reset_list()
 
-
-
+#### later, combine these into horiz. buttons and one text input
 st.sidebar.text_input('Random #', key='change_rand', on_change=submit_rand)
+st.sidebar.text_input('Toggle Chorus @ end', key='toggle_chorus', on_change=submit_chorus_toggle)
+st.sidebar.text_input('Swap songs', key='swap', on_change=submit_swap)
+
+# song selector
+nbr_songs = len(st.session_state.morning.order)
+options = [f"({i+1})" for i in range(nbr_songs)]
+
+# Radio buttons in sidebar (horizontal style)
+selected = st.sidebar.radio(
+    "Select a song:",
+    options,
+    index=0,
+    horizontal=True,
+    key="song_nbr"
+)
+
+st.sidebar.text_input('Change verses', key='verses', on_change=submit_verses_change)
 
 
 
 
-# main function applied to each Service
-# def prompt_change(item):
-#     while True:
-#         clear_terminal()
 
-#         item.export_for_revision()
 
-#         if item.has_duplicates():
-#             st.text('*************WARNING: DUPLICATES IN LIST****************\r\n'*3)
 
-#         change_nbr = st.text_input('Enter #s swap, #f find, #m manual add, #v verses, ' +\
-#                            '#c chorus at end, # random, #l list options, r reset, y accept: ', key=f'{i}')
-#         if change_nbr.lower() == 'y':
-#             break
-#         elif change_nbr.isdigit():
-#             apply_random_change(item, int(change_nbr))
-#         elif 'f' in change_nbr:
-#             handle_search(item, int(change_nbr.replace('f', '')))
-#         elif 'm' in change_nbr:
-#             handle_manual_entry(item, int(change_nbr.replace('m', '')))
-#         elif 'v' in change_nbr:
-#             change_verses(item, int(change_nbr.replace('v', '')))
-#         elif 'c' in change_nbr:
-#             change_chorus_end(item, int(change_nbr.replace('c', '')))
-#         elif 's' in change_nbr:
-#             swap_songs(item, int(change_nbr.replace('s', '')))
-#         elif 'l' in change_nbr:
-#             list_songs(item, int(change_nbr.replace('l', '')))
-#         elif 'r' in change_nbr:
-#             reset_list(item)
-#         else:
-#             print('Invalid input. Please try again.')
 
-# kick off song selection for each service
-# for item in [morning, evening]:
-#     prompt_change(item)            
+
+
+
+
 
 # build email body
 # body = morning.export_for_email() + '\r\n__________________________________________\r\n\r\n' + \
