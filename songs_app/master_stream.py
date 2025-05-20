@@ -83,7 +83,6 @@ def change_verses(item, index, verses):
     if (1 <= index +1 <= len(item.songs)):
         song_to_change = item.order[index]
         song = getattr(item, song_to_change)
-        print(verses)
         song.verses = verses.split(' ')
         setattr(item, song_to_change, song)
         st.session_state.verses = ''
