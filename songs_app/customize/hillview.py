@@ -57,7 +57,7 @@ pm_events_hillview = {'name': ['Sunday PM:', 2],
 ######################################################
 contact_details = {'senders_email': 'make.melody.eph519@gmail.com',
            'recipient_email': 'chalkuhns@gmail.com',
-           'password': 'qqmy acyx hhet svgl'}     # replace with app password from email account provider
+           'password': os.getenv('GM_PWD')}     # replace with app password from email account provider
                                                 # if using gmail, create an app password here: https://myaccount.google.com/apppasswords
                                                 # if using outlook, create an app password here: https://account.live.com/proofs/manage
                                                 # if using yahoo, create an app password here: https://login.yahoo.com/account/security
