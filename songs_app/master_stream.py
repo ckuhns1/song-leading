@@ -80,12 +80,13 @@ def handle_manual_entry(item, index):
     setattr(item, song_to_change, new_song)
 
 def change_verses(item, index, verses):
-    if (1 <= index <= len(item.songs)):
-        song_to_change = item.order[index - 1]
+    if (1 <= index +1 <= len(item.songs)):
+        song_to_change = item.order[index]
         song = getattr(item, song_to_change)
-
-        song.verses = verses
+        print(verses)
+        song.verses = verses.split(' ')
         setattr(item, song_to_change, song)
+        st.session_state.verses = ''
 
 def toggle_chorus(item, index):
     if (1 <= index <= len(item.songs)):
@@ -167,10 +168,10 @@ def submit_swap():
 
 def submit_verses_change():
     user_input = st.session_state.verses
-    temp = user_input.split(' ')
-    user_input = list(map(int, temp))
 
-    change_verses(st.session_state.morning, int(options.index(st.session_state.song_nbr)), st.session_state.verses)
+    change_verses(st.session_state.morning, int(options.index(st.session_state.song_nbr)), user_input)
+    st.session_state.verses = ''
+
     
 
 if st.sidebar.button('Renew'):
@@ -186,7 +187,7 @@ nbr_songs = len(st.session_state.morning.order)
 options = [f"({i+1})" for i in range(nbr_songs)]
 
 # Radio buttons in sidebar (horizontal style)
-selected = st.sidebar.radio(
+st.sidebar.radio(
     "Select a song:",
     options,
     index=0,
