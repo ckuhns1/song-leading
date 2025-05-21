@@ -2,19 +2,79 @@ import streamlit as st
 from domain.assembly import Song, Service
 from customize.hillview import Hillview
 from service.email import Email
-import os
 from time import sleep
 
+
+# setup page
 st.set_page_config("Songs 4 U", layout="wide")
-st.sidebar.header("Modify active service:")
+st.sidebar.header("Service Actions:")
 
 
-if 'morning' not in st.session_state:
-    st.session_state.morning = Service(Hillview().am_songs, Hillview().am_events)
+# setup sidebar
+col1, col2, col3 = st.sidebar.columns(3)
+renew_clicked = col1.button("Renew")
+accept_clicked = col2.button("Accept")
+email_clicked = col3.button("Email")
 
 
-# st.code(st.session_state.morning.export_for_revision(), language='text')
-st.markdown(st.session_state.morning.export_for_revision())
+# initialize looping through services
+if 'lineup' not in st.session_state:
+    st.session_state.lineup = ['am', 'pm']
+
+if 'settled' not in st.session_state:
+    st.session_state.settled = []
+
+
+if 'current' not in st.session_state or accept_clicked:
+    if st.session_state.lineup:
+
+        if 'active' in st.session_state:
+            st.session_state.settled.append(st.session_state.active)
+
+        lineup = st.session_state.lineup.copy()
+        st.session_state.current = lineup.pop(0)
+        st.session_state.lineup = lineup
+
+        current = st.session_state.current
+        st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
+
+    else:
+        # initiate email handling
+        st.session_state.settled.append(st.session_state.active)
+        st.session_state.show = '---------------------------------\r\n\r\n'.join([''] + [item.export_for_email() for item in st.session_state.settled])
+        body = st.session_state.show
+        st.session_state.email = Email(body, Hillview().email_info['senders_email'], \
+                Hillview().email_info['recipient_email'], Hillview().email_info['password'])
+        st.session_state.email.preview()
+        st.session_state.display_flag = False
+
+# Radio buttons in sidebar (horizontal style)
+st.sidebar.header('Song actions:')
+nbr_songs = len(st.session_state.active.order)
+options = [f"({i+1})" for i in range(nbr_songs)]
+
+st.sidebar.radio(
+    "Select a song:",
+    options,
+    index=0,
+    horizontal=True,
+    key="song_nbr"
+)
+
+
+
+# display active service
+if 'display_flag' not in st.session_state:
+    st.markdown(st.session_state.active.export_for_revision())
+
+if email_clicked:
+    body = st.session_state.show
+    # pass email data to email class (set this info in customize/hillview.py)
+    email = Email(body, Hillview().email_info['senders_email'], \
+                Hillview().email_info['recipient_email'], Hillview().email_info['password'])
+
+    # preview and send email
+    email.send_email()
     
 
 
@@ -28,11 +88,10 @@ def apply_random_change(item, index):
         pool = getattr(item.pool, item.types[song_to_change]) # load the appropriate song pool
         if not pool:
             st.text("******SONG POOL EMPTY******\r\n"*3)
-            st.session_state.change_rand = ''
+            sleep(2)
             return
         substitute = item.pool.pick_new_song_remove(pool) # pick a new song and remove it from the pool 
         setattr(item, song_to_change, Song(substitute)) # set the new song
-        st.session_state.change_rand = ''
 
 def handle_search(item, index):
     if not (1 <= index <= len(item.songs)):
@@ -138,63 +197,59 @@ def list_songs(item, index):
 
 
 def reset_list():
-    del st.session_state['morning']
-    st.session_state.morning = Service(Hillview().am_songs, Hillview().am_events)
+    # del st.session_state['active']
+    st.session_state.active = Service(
+        getattr(Hillview(), f'{st.session_state.current}_songs'), 
+        getattr(Hillview(), f'{st.session_state.current}_events'))
     st.rerun()
 
 def submit_rand():
-    user_input = st.session_state.change_rand
-    if user_input.isdigit():
-        apply_random_change(st.session_state.morning, int(user_input))
-    else: 
-        st.session_state.change_rand = ''
+    user_input = st.session_state.song_nbr[1]
+    apply_random_change(st.session_state.active, int(user_input))
+    st.rerun()
 
 def submit_chorus_toggle():
-    user_input = st.session_state.toggle_chorus
-    if user_input.isdigit():
-        toggle_chorus(st.session_state.morning, int(user_input))
-    else: 
-        st.session_state.toggle_chorus = ''
+    user_input = st.session_state.song_nbr[1]
+    toggle_chorus(st.session_state.active, int(user_input))
+    st.rerun()
 
 def submit_swap():
     user_input = st.session_state.swap
     if ' ' in user_input and user_input.replace(' ', '').isdigit():
         temp = user_input.split(' ')
         user_input = list(map(int, temp))
-        swap_songs(st.session_state.morning, user_input)
+        swap_songs(st.session_state.active, user_input)
     else: 
         st.session_state.swap = ''
 
 def submit_verses_change():
     user_input = st.session_state.verses
 
-    change_verses(st.session_state.morning, int(options.index(st.session_state.song_nbr)), user_input)
+    change_verses(st.session_state.active, int(options.index(st.session_state.song_nbr)), user_input)
     st.session_state.verses = ''
 
     
-
-if st.sidebar.button('Renew'):
+if renew_clicked:
     reset_list()
 
-#### later, combine these into horiz. buttons and one text input
-st.sidebar.text_input('Random #', key='change_rand', on_change=submit_rand)
-st.sidebar.text_input('Toggle Chorus @ end', key='toggle_chorus', on_change=submit_chorus_toggle)
-st.sidebar.text_input('Swap songs', key='swap', on_change=submit_swap)
 
-# song selector
-nbr_songs = len(st.session_state.morning.order)
-options = [f"({i+1})" for i in range(nbr_songs)]
+col1, col2 = st.sidebar.columns(2)
+random_clicked = col1.button('Random #')
+toggle_chorus_clicked = col2.button('Toggle Chorus')
 
-# Radio buttons in sidebar (horizontal style)
-st.sidebar.radio(
-    "Select a song:",
-    options,
-    index=0,
-    horizontal=True,
-    key="song_nbr"
-)
+if random_clicked:
+    submit_rand()
 
-st.sidebar.text_input('Change verses', key='verses', on_change=submit_verses_change)
+if toggle_chorus_clicked:
+    submit_chorus_toggle()
+
+st.sidebar.text_input('Swap two songs (space-separated):', key='swap', on_change=submit_swap)
+    
+
+
+
+
+st.sidebar.text_input('Select verses (space-separated):', key='verses', on_change=submit_verses_change)
 
 
 

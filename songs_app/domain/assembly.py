@@ -11,8 +11,7 @@ class Song:
 
     def __repr__(self):
         pad_length = 3 - len(self.number)
-        nbsp = "&nbsp;" * pad_length
-        temp = f" **{nbsp}{self.number} -- {self.title}**"
+        temp = f" **{self.number} -- {self.title}**"
 
         if self.verses != ['']:
             temp += f"   (_Verses: {', '.join(self.verses)}_)"

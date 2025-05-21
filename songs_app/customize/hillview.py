@@ -46,7 +46,7 @@ pm_songs_hillview = {'first': 'general',
 
 pm_events_hillview = {'name': ['Sunday PM:', 2],
                             'o_prayer': ['OPENING PRAYER', 1],
-                            'sermon': ['SCRIPTURE READING\\SERMON', 2],
+                            'sermon': ['SCRIPTURE READING/SERMON', 2],
                             'c_prayer': ['CLOSING PRAYER', 0]}
 ######################################################
 
