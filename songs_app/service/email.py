@@ -20,9 +20,7 @@ class Email:
         Recipient: {self.recipient_email} \r\n \
         {self.body}'.replace('*', ''))
 
-    def preview_and_send(self):
-        self.preview()
-
+    def load_email_and_send(self):
         self.send_email(self.senders_email, self.password, self.recipient_email, self.subject, self.body)
 
     def send_email(self, senders_email, sender_password, recipient_email, subject, body):

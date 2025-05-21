@@ -74,7 +74,7 @@ if email_clicked:
                 Hillview().email_info['recipient_email'], Hillview().email_info['password'])
 
     # preview and send email
-    email.send_email()
+    email.load_email_and_send()
     
 
 
