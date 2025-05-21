@@ -54,7 +54,7 @@ nbr_songs = len(st.session_state.active.order)
 options = [f"({i+1})" for i in range(nbr_songs)]
 
 st.sidebar.radio(
-    "Select a song:",
+    "Select a song to modify:",
     options,
     index=0,
     horizontal=True,
@@ -215,10 +215,11 @@ def submit_chorus_toggle():
 
 def submit_swap():
     user_input = st.session_state.swap
-    if ' ' in user_input and user_input.replace(' ', '').isdigit():
-        temp = user_input.split(' ')
-        user_input = list(map(int, temp))
-        swap_songs(st.session_state.active, user_input)
+    if user_input.strip().isdigit():
+        user_input1 = int(user_input)
+        user_input2 = int(st.session_state.song_nbr[1])
+        pair = [user_input1, user_input2]
+        swap_songs(st.session_state.active, pair)
     else: 
         st.session_state.swap = ''
 
@@ -243,13 +244,13 @@ if random_clicked:
 if toggle_chorus_clicked:
     submit_chorus_toggle()
 
-st.sidebar.text_input('Swap two songs (space-separated):', key='swap', on_change=submit_swap)
+st.sidebar.text_input('Swap with another:', key='swap', on_change=submit_swap)
     
 
 
 
 
-st.sidebar.text_input('Select verses (space-separated):', key='verses', on_change=submit_verses_change)
+st.sidebar.text_input('List verses (space-separated):', key='verses', on_change=submit_verses_change)
 
 
 
