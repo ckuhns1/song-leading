@@ -67,11 +67,11 @@ st.sidebar.radio(
 if 'display_flag' not in st.session_state:
     st.markdown(st.session_state.active.export_for_revision())
 
-if email_clicked:
+if email_clicked and st.session_state.address:
     body = st.session_state.show
     # pass email data to email class (set this info in customize/hillview.py)
     email = Email(body, Hillview().email_info['senders_email'], \
-                Hillview().email_info['recipient_email'], Hillview().email_info['password'])
+                st.session_state.address, Hillview().email_info['password'])
 
     # preview and send email
     email.load_email_and_send()
@@ -245,12 +245,10 @@ if toggle_chorus_clicked:
     submit_chorus_toggle()
 
 st.sidebar.text_input('Swap with another:', key='swap', on_change=submit_swap)
-    
-
-
-
-
 st.sidebar.text_input('List verses (space-separated):', key='verses', on_change=submit_verses_change)
+
+st.sidebar.header('Enter recipient\'s email')
+st.sidebar.text_input('Email:', key='address')
 
 
 
