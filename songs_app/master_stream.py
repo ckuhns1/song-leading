@@ -160,18 +160,7 @@ if 'email_setup' not in st.session_state:
 # Step 2: Curate service lineups
 if 'list_build' not in st.session_state:
     # show current service
-    if 'search' not in st.session_state:
-        st.markdown(st.session_state.active.export_for_revision()) 
-    else:
-        col1, col2 = st.columns(2)
-        with col1:
-            st.header('Column 1')
-            st.markdown(st.session_state.active.export_for_revision()) 
-        with col2:
-            st.header('Column 2')
-            st.button('Text', key='123')
-            st.markdown(st.session_state.active.export_for_revision()) 
-        del st.session_state['search']
+    st.markdown(st.session_state.active.export_for_revision()) 
 
 
 
