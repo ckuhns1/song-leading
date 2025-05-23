@@ -14,14 +14,11 @@ class Email:
         self.body = body
 
     def preview(self):
-        st.text( f'This is the email that will be sent:\r\n \
-        ---------------------------------- \r\n\
-        Subject: {self.subject} \r\n \
-        Recipient: {self.recipient_email} \r\n \
-        {self.body}'.replace('*', ''))
+        st.text(f'---------------------------------- \r\nSubject: {self.subject} \r\n{self.body}'.replace('*', ''))
 
     def load_email_and_send(self):
-        self.send_email(self.senders_email, self.password, self.recipient_email, self.subject, self.body)
+        for email in st.session_state.parsed:
+            self.send_email(self.senders_email, self.password, email, self.subject, self.body)
 
     def send_email(self, senders_email, sender_password, recipient_email, subject, body):
         try:
@@ -40,10 +37,10 @@ class Email:
                 server.login(senders_email, sender_password)  # Log in to your Gmail account
                 server.send_message(message)  # Send the email
 
-            st.code("Email sent successfully!")
+            st.code(f"Email sent successfully to {recipient_email}!")
 
         except Exception as e:
-            st.code(f"Failed to send email: {e}")
+            st.code(f"Failed to send email to {recipient_email}: {e}")
     
     def get_date_of_sunday(self):
         today = datetime.date.today()

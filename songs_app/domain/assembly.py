@@ -63,8 +63,19 @@ class Service:
                 nbr += 1
         return temp
 
-
-
-    
     def has_duplicates(self):
         return not len({song.number for song in self.songs}) == len(self.types)
+    
+    def search_pool(self, song_nbr, search_str):
+        song_to_change = self.order[song_nbr - 1]
+        pool = getattr(self.pool, self.types[song_to_change])
+
+        if search_str.isdigit():
+            matches = [s for s in pool if search_str == s[1]]
+        else:
+            matches = [s for s in pool if search_str in s[0].lower()]
+        if not matches:
+            st.text("No matches\r\n"*3)
+        
+        return matches
+
