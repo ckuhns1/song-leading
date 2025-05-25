@@ -201,7 +201,7 @@ if 'finalized' not in st.session_state and 'email_setup' in st.session_state:
 
 
     # setup standard sidebar
-    st.sidebar.info(f'Sending to: {', '.join(st.session_state.emails)}')
+    st.sidebar.info(f'Sending to: {", ".join(st.session_state.emails)}')
     st.sidebar.header("Service Actions:")
     col1, col2, col3 = st.sidebar.columns(3)
     renew_clicked = col1.button("Renew")
