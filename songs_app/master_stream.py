@@ -8,19 +8,6 @@ from time import sleep
 # setup page
 st.set_page_config("Melody", layout="wide")
 
-# initialize looping through services
-if 'lineup' not in st.session_state:
-    st.session_state.lineup = ['am', 'pm']
-    st.session_state.settled = []
-    lineup = st.session_state.lineup.copy()
-    current = lineup.pop(0)
-    st.session_state.current = current
-
-    st.session_state.lineup = lineup
-    st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
-
-
-# helper functions
 def save_email():
     temp = st.session_state.address
     temp = temp.split(',')
@@ -39,6 +26,7 @@ def save_email():
             placeholder.empty()
         else:
             st.info(f'{email} is not a valid email address. Removing it from the recipient list.')
+            sleep(2)
             st.session_state.emails.remove(email)
     
     
@@ -49,16 +37,49 @@ def save_email():
     else:
         st.session_state.address = ''
 
+
+
+# Step 1: Enter/store email addresses
+if 'email_setup' not in st.session_state:
+    st.sidebar.info('To begin, please enter the email(s) you wish to send your addresses. Separate addresses with commas.')
+    st.header('Songs List Recipient Email(s):')
+    
+    st.text_input(' ', key='address', on_change=save_email)
+
+
+# initialize looping through services
+if 'lineup' not in st.session_state:
+    st.session_state.lineup = ['am', 'pm']
+    st.session_state.settled = []
+    lineup = st.session_state.lineup.copy()
+    current = lineup.pop(0)
+    st.session_state.current = current
+
+    st.session_state.lineup = lineup
+    st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
+    st.session_state.finished_list = []
+
+# helper functions
+
+
 def advance_service():
     lineup = st.session_state.lineup.copy()
-    st.session_state.current = lineup.pop(0)
-    st.session_state.lineup = lineup
+    if len(lineup) > 0:
+        st.session_state.finished_list.append(st.session_state.active)
+        st.session_state.current = lineup.pop(0)
+        st.session_state.lineup = lineup
 
-    current = st.session_state.current
-    st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
-    st.balloons()
-    sleep(2)
-    st.rerun()
+        current = st.session_state.current
+        st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
+        st.balloons()
+        sleep(2)
+        st.rerun()
+    else: 
+        st.session_state.finished_list.append(st.session_state.active)
+        st.balloons()
+        sleep(2)
+        st.session_state.finalized = True
+        st.rerun()
 
 def reset_list():
     del st.session_state['active']
@@ -148,27 +169,53 @@ def submit_verses_change():
 def handle_search():
     pass
 
-# Step 1: Enter/store email addresses
-if 'email_setup' not in st.session_state:
-    st.sidebar.info('To begin, please enter the email(s) you wish to send your addresses. Separate addresses with commas.')
-    st.header('Songs List Recipient Email(s):')
-    
-    st.text_input(' ', key='address', on_change=save_email)
+def start_over():
+    for key in st.session_state.keys():
+        del st.session_state[key]
+
     st.rerun()
+
+def send_emails(address):
+    # build email body
+    body = '\r\n__________________________________________\r\n\r\n'.join([item.export_for_email() for item in st.session_state.finished_list])
+    print(type(address))
+    print(address)
+    if isinstance(address, str):
+        temp = Email(body, Hillview().email_info['senders_email'], \
+                    address, Hillview().email_info['password'])
+        temp.send_email()
+
+    elif isinstance(address, list):
+        for email in address:
+            temp = Email(body, Hillview().email_info['senders_email'], \
+                        email, Hillview().email_info['password'])
+            temp.send_email()
+
 
 
 # Step 2: Curate service lineups
-if 'list_build' not in st.session_state:
+if 'finalized' not in st.session_state and 'email_setup' in st.session_state:
     # show current service
     st.markdown(st.session_state.active.export_for_revision()) 
 
 
 
     # setup standard sidebar
+    st.sidebar.info(f'Sending to: {', '.join(st.session_state.emails)}')
     st.sidebar.header("Service Actions:")
-    col1, col2 = st.sidebar.columns(2)
+    col1, col2, col3 = st.sidebar.columns(3)
     renew_clicked = col1.button("Renew")
     accept_clicked = col2.button("Accept")
+    restart = col3.button('Start Over')
+
+    if accept_clicked:
+        advance_service()
+
+    if renew_clicked:
+        reset_list()
+    
+    if restart:
+        start_over()
 
     st.sidebar.markdown('---')
 
@@ -185,6 +232,13 @@ if 'list_build' not in st.session_state:
     col1, col2 = st.sidebar.columns(2)
     random_clicked = col1.button('Random')
     toggle_chorus_clicked = col2.button('Chorus')
+
+    if random_clicked:
+        submit_rand()
+
+    if toggle_chorus_clicked:
+        submit_chorus_toggle()
+
     st.sidebar.text_input('Swap with song number:', key='swap', on_change=submit_swap)
     st.sidebar.text_input('List verses, space-separated:', key='verses', on_change=submit_verses_change)
 
@@ -208,19 +262,29 @@ if 'list_build' not in st.session_state:
 
     st.sidebar.text_input('Search by number or title:', key='search', on_change=handle_search)
 
+# Step 3: Send emails
+elif 'finalized' in st.session_state:
+    # email portal
+    st.header('Email Portal')
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        restart = st.button('Start Over')
+        for email in st.session_state.emails:
+            st.button(f'Email {email}', on_click=send_emails, args=(email,))
+        print(st.session_state.emails)
+        st.button(f'Email All', on_click=send_emails, args=(st.session_state.emails,))
 
 
-    if accept_clicked:
-        advance_service()
-
-    if renew_clicked:
-        reset_list()
-
-    if random_clicked:
-        submit_rand()
-
-    if toggle_chorus_clicked:
-        submit_chorus_toggle()
+    with col2:
+        for item in st.session_state.finished_list:
+            st.markdown(item.export_for_revision())
+            st.markdown('---')
+            st.markdown('---')
+    
+    if restart:
+        start_over()
     
 
 
@@ -231,97 +295,3 @@ if 'list_build' not in st.session_state:
 
 
 
-
-
-
-
-# def handle_search(item, index):
-#     if not (1 <= index <= len(item.songs)):
-#         print("Invalid song number.")
-#         return
-
-#     song_to_change = item.order[index - 1]
-#     search = input("Enter number or part of song title to search: ").lower()
-#     if search.isdigit():
-#         pool = getattr(item.pool, item.types[song_to_change])
-#         matches = [s for s in pool if search == s[1]]
-#     else: 
-#         pool = getattr(item.pool, item.types[song_to_change])
-#         matches = [s for s in pool if search in s[0].lower()]
-
-#     if not matches:
-#         print("*******No matches found*******\r\n"*3)
-#         sleep(2)
-#         return
-
-#     for i, (title, *_) in enumerate(matches, 1):
-#         print(f"({i}) {title}")
-
-#     pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
-#     if pick.lower() == 'y':
-#         return
-
-#     if pick.isdigit() and 1 <= int(pick) <= len(matches):
-#         substitute = matches[int(pick) - 1]
-#         setattr(item, song_to_change, Song(substitute))
-#         item.pool.remove_song(pool, substitute)
-
-
-
-
-
-
-
-
-
-# def list_songs(item, index):
-#     if not (1 <= index <= len(item.songs)):
-#         print("Invalid song number.")
-#         return
-    
-#     song_to_change = item.order[index - 1]
-#     pool = getattr(item.pool, item.types[song_to_change]) # load the appropriate song pool
-
-#     if not pool:
-#         print("******SONG POOL EMPTY******\r\n"*3)
-#         sleep(2)
-#         return
-    
-#     for i, song in enumerate(pool, 1):
-#         print(f'({i}){" "*(3-len(str(i)))} {song[1]}{" "*(3-len(song[1]))}  {song[0]}')
-
-#     pick = input('Enter number of song to insert, or "y" to cancel: ').strip()
-#     if pick.lower() == 'y':
-#         return
-    
-#     if pick.isdigit() and 1 <= int(pick) <= len(pool):
-#         substitute = pool[int(pick) - 1]
-#         confirm = input(f'You selected {Song(substitute).__repr__()}. Enter "y" to confirm or "n" to escape: ').strip()
-#         if confirm.lower() == 'y':
-#             setattr(item, song_to_change, Song(substitute))
-#             item.pool.remove_song(pool, substitute)
-#         else: 
-#             return
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-# def search_pool():
-#     user_input = int(st.session_state.song_nbr[1])
-#     print(user_input)
-#     search_str = st.session_state.search
-#     matches = st.session_state.active.search_pool(user_input, search_str)
-
-    
-#     st.sidebar.markdown('\r\n'.join([Song(item).__repr__() for item in matches]))
