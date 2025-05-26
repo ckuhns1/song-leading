@@ -205,8 +205,7 @@ def start_over():
 def send_emails(address):
     # build email body
     body = '\r\n__________________________________________\r\n\r\n'.join([item.export_for_email() for item in st.session_state.finished_list])
-    print(type(address))
-    print(address)
+
     if isinstance(address, str):
         temp = Email(body, Hillview().email_info['senders_email'], \
                     address, Hillview().email_info['password'])
