@@ -37,8 +37,6 @@ def save_email():
     else:
         st.session_state.address = ''
 
-
-
 # Step 1: Enter/store email addresses
 if 'email_setup' not in st.session_state:
     st.sidebar.info('To begin, please enter the email(s) you wish to send your addresses. Separate addresses with commas.')
@@ -59,9 +57,8 @@ if 'lineup' not in st.session_state:
     st.session_state.active = Service(getattr(Hillview(), f'{current}_songs'), getattr(Hillview(), f'{current}_events'))
     st.session_state.finished_list = []
 
+
 # helper functions
-
-
 def advance_service():
     lineup = st.session_state.lineup.copy()
     if len(lineup) > 0:
@@ -156,8 +153,11 @@ def change_verses(item, index, verses):
     if (1 <= index +1 <= len(item.songs)):
         song_to_change = item.order[index]
         song = getattr(item, song_to_change)
-        song.verses = verses.split(' ')
-        setattr(item, song_to_change, song)
+        if verses == ' ':
+            song.verses = ['']
+        else:
+            song.verses = verses.split(' ')
+            setattr(item, song_to_change, song)
         st.session_state.verses = ''
 
 def submit_verses_change():
@@ -166,8 +166,35 @@ def submit_verses_change():
     change_verses(st.session_state.active, int(options.index(st.session_state.song_nbr)), user_input)
     st.session_state.verses = ''
 
+def substitute_option():
+    print(st.session_state.selection)
+
+
 def handle_search():
-    pass
+    # set session variables to enter search mode--handled by text entry
+
+    # perform search on user input, and present selectable results
+    user_input = st.session_state.search
+    service = st.session_state.active
+    song_nbr = int(st.session_state.song_nbr[1])
+    song_to_change = service.order[song_nbr - 1]
+    pool = getattr(service.pool, service.types[song_to_change])
+
+
+    if user_input.isdigit():
+        results = [Song(item) for item in pool if item[1] == user_input]
+    else:
+        results = [Song(item) for item in pool if user_input.lower() in item[0].lower()]
+
+    if results:
+        st.session_state.search_results = results
+        st.session_state.target = song_to_change
+    else:
+        st.session_state.search_results = []
+        st.session_state.target = None
+            
+    # exit search mode
+
 
 def start_over():
     for key in st.session_state.keys():
@@ -193,10 +220,55 @@ def send_emails(address):
 
 
 
-# Step 2: Curate service lineups
 if 'finalized' not in st.session_state and 'email_setup' in st.session_state:
+
+    # Show search results if present
+    if 'search_results' in st.session_state and 'target' in st.session_state:
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            results = st.session_state.search_results
+            if results:
+                results.sort(key=lambda x: x.title)
+                song_to_change = st.session_state.target
+
+                st.radio(
+                    'Select an option:',
+                    results,
+                    format_func=lambda x: x.__repr__(),
+                    key='search_choice'  # persistent selection
+                )
+
+                if st.button("Insert selected song"):
+                    setattr(st.session_state.active, song_to_change, st.session_state.search_choice)
+                    # Clean up
+                    del st.session_state['search_results']
+                    del st.session_state['target']
+                    st.session_state.search = ''
+                    st.rerun()  # rerun to reflect updates
+                
+                if st.button('Cancel'):
+                    # Clean up
+                    del st.session_state['search_results']
+                    del st.session_state['target']
+                    st.session_state.search = ''
+                    st.rerun()
+            else:
+                st.info('No matches found')
+                st.session_state.search = ''
+
+        with col2:
+            st.markdown(st.session_state.active.export_for_revision()) 
+
+ 
     # show current service
-    st.markdown(st.session_state.active.export_for_revision()) 
+    if 'search_results' not in st.session_state:
+        active = st.session_state.active
+        if active.has_duplicates():
+            st.warning('*************WARNING: DUPLICATES IN LIST****************')
+        st.markdown(st.session_state.active.export_for_revision()) 
+
 
 
 
@@ -240,7 +312,9 @@ if 'finalized' not in st.session_state and 'email_setup' in st.session_state:
         submit_chorus_toggle()
 
     st.sidebar.text_input('Swap with song number:', key='swap', on_change=submit_swap)
-    st.sidebar.text_input('List verses, space-separated:', key='verses', on_change=submit_verses_change)
+    st.sidebar.text_input('Verses, space-separated (space for all):', key='verses', on_change=submit_verses_change)
+
+    st.sidebar.text_input('Number/title search (space for all):', key='search', on_change=handle_search)
 
     st.sidebar.markdown('---')
 
@@ -258,9 +332,8 @@ if 'finalized' not in st.session_state and 'email_setup' in st.session_state:
 
     st.sidebar.markdown('---')
 
-    st.sidebar.header('Search')
 
-    st.sidebar.text_input('Search by number or title:', key='search', on_change=handle_search)
+    
 
 # Step 3: Send emails
 elif 'finalized' in st.session_state:
