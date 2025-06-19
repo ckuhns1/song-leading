@@ -27,7 +27,7 @@ class Email:
             message['From'] = self.senders_email
             message['To'] = self.recipient_email
             message['Subject'] = self.subject
-
+            message['Reply-To'] = 'chalkuhns@gmail.com'  # Set the reply-to address
             # Attach the email body
             message.attach(MIMEText(self.body, 'plain'))
 

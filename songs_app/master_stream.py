@@ -6,7 +6,7 @@ from time import sleep
 
 
 # setup page
-st.set_page_config("Melody", layout="wide")
+st.set_page_config("Melody", layout="wide", page_icon=":musical_note:")
 
 def save_email():
     temp = st.session_state.address
@@ -169,7 +169,6 @@ def submit_verses_change():
 def substitute_option():
     print(st.session_state.selection)
 
-
 def handle_search():
     # set session variables to enter search mode--handled by text entry
 
@@ -194,7 +193,6 @@ def handle_search():
         st.session_state.target = None
             
     # exit search mode
-
 
 def start_over():
     for key in st.session_state.keys():
