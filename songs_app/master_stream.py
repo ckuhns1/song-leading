@@ -47,7 +47,7 @@ if 'email_setup' not in st.session_state:
 
 # initialize looping through services
 if 'lineup' not in st.session_state:
-    st.session_state.lineup = ['am', 'pm']
+    st.session_state.lineup = ['am', 'pm', 'weds']
     st.session_state.settled = []
     lineup = st.session_state.lineup.copy()
     current = lineup.pop(0)

@@ -48,6 +48,14 @@ pm_events_hillview = {'name': ['Sunday PM:', 2],
                             'o_prayer': ['OPENING PRAYER', 1],
                             'sermon': ['SCRIPTURE READING/SERMON', 2],
                             'c_prayer': ['CLOSING PRAYER', 0]}
+
+weds_songs_hillview = {'first': 'general',
+                       'second': 'general',
+                       'invitation': 'invitation'}
+
+weds_events_hillview = {'name': ['Wednesday Evening:', 2],
+                        'o_prayer': ['PRAYER/SR/TALK', 1],
+                        'c_prayer': ['CLOSING PRAYER', 0]}
 ######################################################
 
 
@@ -69,3 +77,5 @@ class Hillview:
         self.am_events = am_events_hillview
         self.pm_events = pm_events_hillview
         self.email_info = contact_details
+        self.weds_songs = weds_songs_hillview
+        self.weds_events = weds_events_hillview
