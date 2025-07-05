@@ -180,10 +180,13 @@ def handle_search():
     pool = getattr(service.pool, service.types[song_to_change])
 
 
-    if user_input.isdigit():
+    if  user_input == ' ':
+        results = [Song(item) for item in pool]
+    elif user_input.isdigit():
         results = [Song(item) for item in pool if item[1] == user_input]
     else:
         results = [Song(item) for item in pool if user_input.lower() in item[0].lower()]
+        results.sort(key=lambda x: x.title)  # Sort by title
 
     if results:
         st.session_state.search_results = results
