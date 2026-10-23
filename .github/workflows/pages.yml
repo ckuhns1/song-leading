@@ -1,0 +1,66 @@
+name: Deploy web app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'songs_app/infra/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Assemble site
+        env:
+          EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_TEMPLATE_ID: ${{ secrets.EMAILJS_TEMPLATE_ID }}
+          EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          REPLY_TO: ${{ vars.REPLY_TO || 'chalkuhns@gmail.com' }}
+        run: |
+          mkdir -p site/songs
+          cp -r web/. site/
+          cp songs_app/infra/*.csv site/songs/
+          python3 - <<'EOF'
+          import json, os
+          config = {
+              'emailjs': {
+                  'serviceId': os.environ.get('EMAILJS_SERVICE_ID', ''),
+                  'templateId': os.environ.get('EMAILJS_TEMPLATE_ID', ''),
+                  'publicKey': os.environ.get('EMAILJS_PUBLIC_KEY', ''),
+              },
+              'replyTo': os.environ.get('REPLY_TO', ''),
+          }
+          with open('site/config.js', 'w') as f:
+              f.write('window.SONGS_CONFIG = ' + json.dumps(config) + ';\n')
+          EOF
+          touch site/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Melody · Song Lineup</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🎵</span>
+      <div>
+        <h1>Melody</h1>
+        <p class="sub" id="church"></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="week">
+        <span>Week of</span>
+        <input type="date" id="sunday" aria-label="Sunday date">
+      </label>
+      <button class="btn" id="reroll-all" title="Pick new songs for every unlocked slot">🎲 New lineup</button>
+      <button class="btn ghost icon" id="open-settings" title="Settings" aria-label="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="warning" class="warning" hidden></div>
+    <section id="services" class="services" aria-label="Services"></section>
+
+    <section class="send card" aria-labelledby="send-h">
+      <div class="card-head">
+        <h2 id="send-h">Send the list</h2>
+      </div>
+      <div class="send-body">
+        <div class="recipients">
+          <label for="recipient-input">Recipients</label>
+          <div class="chips" id="chips"></div>
+          <form id="recipient-form" class="row">
+            <input id="recipient-input" type="text" inputmode="email" autocomplete="email" placeholder="name@example.com (separate several with commas)">
+            <button class="btn" type="submit">Add</button>
+          </form>
+          <p class="hint">Recipients are remembered on this device.</p>
+        </div>
+        <div class="preview">
+          <div class="row spread">
+            <label>Email preview</label>
+            <span class="muted" id="subject"></span>
+          </div>
+          <pre id="preview"></pre>
+        </div>
+      </div>
+      <div class="send-actions">
+        <span id="send-status" class="status" role="status" aria-live="polite"></span>
+        <button class="btn ghost" id="copy">📋 Copy text</button>
+        <button class="btn ghost" id="print">🖨️ Print</button>
+        <button class="btn primary" id="send">✉️ Send email</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">Songs from <em>Praise for the Lord</em>. Your lineup is saved on this device as you work.</footer>
+
+  <!-- Choose song dialog -->
+  <dialog id="picker">
+    <form method="dialog" class="dlg">
+      <div class="dlg-head">
+        <h3 id="picker-title">Choose a song</h3>
+        <button class="btn ghost icon" value="cancel" aria-label="Close">✕</button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="search" role="tab">Search</button>
+        <button type="button" class="tab" data-tab="manual" role="tab">Enter manually</button>
+      </div>
+      <div class="tab-panel" data-panel="search">
+        <div class="row">
+          <input id="picker-q" type="search" placeholder="Title or number" autocomplete="off">
+          <label class="check"><input type="checkbox" id="picker-all"> All categories</label>
+        </div>
+        <ul id="picker-list" class="picker-list" role="listbox"></ul>
+      </div>
+      <div class="tab-panel" data-panel="manual" hidden>
+        <div class="grid2">
+          <label>Title<input id="m-title" type="text"></label>
+          <label>Number<input id="m-number" type="text" inputmode="numeric"></label>
+          <label>Verses<input id="m-verses" type="text" placeholder="e.g. 1 2 4 (blank for all)"></label>
+          <label class="check"><input type="checkbox" id="m-chorus"> Chorus at end only</label>
+        </div>
+        <div class="dlg-foot"><button type="button" class="btn primary" id="m-save">Use this song</button></div>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Settings dialog -->
+  <dialog id="settings">
+    <form method="dialog" class="dlg">
+      <div class="dlg-head">
+        <h3>Settings</h3>
+        <button class="btn ghost icon" value="cancel" aria-label="Close">✕</button>
+      </div>
+      <fieldset>
+        <legend>Song variety</legend>
+        <label class="row">Avoid songs sent in the last
+          <input id="avoid-weeks" type="number" min="0" max="26" class="narrow"> weeks</label>
+        <p class="hint" id="history-summary"></p>
+        <button type="button" class="btn ghost" id="clear-history">Clear song history</button>
+      </fieldset>
+      <fieldset>
+        <legend>EmailJS</legend>
+        <p class="hint">Normally filled in automatically when the site is deployed. Anything you enter here overrides that, on this device only.</p>
+        <label>Service ID<input id="ej-service" type="text" autocomplete="off"></label>
+        <label>Template ID<input id="ej-template" type="text" autocomplete="off"></label>
+        <label>Public key<input id="ej-key" type="text" autocomplete="off"></label>
+        <p class="hint" id="ej-state"></p>
+      </fieldset>
+      <div class="dlg-foot">
+        <button type="button" class="btn danger ghost" id="start-over">Start over</button>
+        <button class="btn primary" id="save-settings" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
