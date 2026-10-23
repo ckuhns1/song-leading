@@ -33,6 +33,7 @@ jobs:
           EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
           EMAILJS_TEMPLATE_ID: ${{ secrets.EMAILJS_TEMPLATE_ID }}
           EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          HISTORY_URL: ${{ secrets.HISTORY_URL }}
           REPLY_TO: ${{ vars.REPLY_TO || 'chalkuhns@gmail.com' }}
         run: |
           mkdir -p site/songs
@@ -46,6 +47,7 @@ jobs:
                   'templateId': os.environ.get('EMAILJS_TEMPLATE_ID', ''),
                   'publicKey': os.environ.get('EMAILJS_PUBLIC_KEY', ''),
               },
+              'historyUrl': os.environ.get('HISTORY_URL', ''),
               'replyTo': os.environ.get('REPLY_TO', ''),
           }
           with open('site/config.js', 'w') as f:

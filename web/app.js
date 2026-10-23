@@ -74,7 +74,8 @@ const longDate = s => fromIso(s).toLocaleDateString('en-GB', { day: 'numeric', m
 // ---------- state ----------
 let prefs = { avoidWeeks: 4, emailjs: {}, ...load(STORE.prefs, {}) };
 let recipients = load(STORE.recipients, []);
-let history = load(STORE.history, {});   // sunday iso -> [song keys]
+let history = load(STORE.history, {});   // sunday iso -> [song keys], sends from this device
+let shared = { status: 'off', history: {} };   // same shape, from the shared Google Sheet
 let state = load(STORE.lineup, null);
 
 const persist = () => save(STORE.lineup, state);
@@ -84,7 +85,7 @@ function recentKeys() {
   if (!weeks) return new Set();
   const now = fromIso(state.sunday).getTime();
   const out = new Set();
-  for (const [day, keys] of Object.entries(history)) {
+  for (const [day, keys] of [...Object.entries(history), ...Object.entries(shared.history)]) {
     const age = (now - fromIso(day).getTime()) / 864e5;
     if (day !== state.sunday && age > 0 && age <= weeks * 7) keys.forEach(k => out.add(k));
   }
@@ -389,6 +390,49 @@ function addRecipients(text) {
   return bad;
 }
 
+// ---------- shared history ----------
+const historyUrl = () => (prefs.historyUrl || CONFIG.historyUrl || '').trim();
+
+async function loadSharedHistory() {
+  const url = historyUrl();
+  if (!url) { shared = { status: 'off', history: {} }; return; }
+  try {
+    const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}weeks=26`);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'bad response');
+    const out = {};
+    for (const [day, songs] of Object.entries(data.history || {})) out[day] = songs.map(keyOf);
+    shared = { status: 'ok', history: out };
+  } catch (err) {
+    console.warn('Shared history unavailable:', err);
+    shared = { status: 'error', history: {} };
+  }
+}
+
+async function saveSharedHistory() {
+  const url = historyUrl();
+  if (!url) return true;
+  const payload = {
+    sunday: state.sunday,
+    recipients,
+    services: includedServices().map(svc => ({
+      name: svc.name,
+      songs: state.services[svc.id].slots.filter(sl => sl.song).map(sl => sl.song),
+    })),
+  };
+  try {
+    // text/plain keeps this a "simple" request, which Apps Script accepts without a CORS preflight.
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'bad response');
+    shared.history[state.sunday] = [...usedKeys()];
+    return true;
+  } catch (err) {
+    console.warn('Could not save shared history:', err);
+    return false;
+  }
+}
+
 // ---------- sending ----------
 function emailjsSettings() {
   const base = CONFIG.emailjs || {};
@@ -438,7 +482,9 @@ async function send() {
     if (!res.ok) throw new Error(body || `HTTP ${res.status}`);
     history[state.sunday] = [...usedKeys()];
     save(STORE.history, history);
-    setStatus(`Sent to ${recipients.length} recipient${recipients.length > 1 ? 's' : ''} ✓`, 'ok');
+    const logged = await saveSharedHistory();
+    const sent = `Sent to ${recipients.length} recipient${recipients.length > 1 ? 's' : ''} ✓`;
+    setStatus(logged ? sent : `${sent} (but the shared song history couldn’t be updated)`, logged ? 'ok' : 'err');
     toast('Email sent');
   } catch (err) {
     setStatus(`Send failed: ${err.message}`, 'err');
@@ -465,8 +511,10 @@ function openSettings() {
   $('#ej-state').textContent = base.serviceId && base.templateId && base.publicKey
     ? 'Deployed keys are present. Leave these blank to use them.'
     : 'No deployed keys found. Add the GitHub secrets, or enter keys here.';
-  const weeks = Object.keys(history).sort().reverse();
-  $('#history-summary').textContent = weeks.length ? `History has ${weeks.length} sent week${weeks.length > 1 ? 's' : ''}, latest ${longDate(weeks[0])}.` : 'No song history yet. It builds up each time you send.';
+  $('#history-url').value = prefs.historyUrl || '';
+  const weeks = [...new Set([...Object.keys(history), ...Object.keys(shared.history)])].sort().reverse();
+  const source = { ok: 'Shared history is connected, so sends from every device count.', error: 'Shared history couldn’t be reached; using this device’s history only.', off: 'Shared history isn’t set up, so only sends from this device count.' }[shared.status];
+  $('#history-summary').textContent = `${source} ${weeks.length ? `${weeks.length} sent week${weeks.length > 1 ? 's' : ''} on record, latest ${longDate(weeks[0])}.` : 'No song history yet.'}`;
   $('#settings').showModal();
 }
 
@@ -514,12 +562,15 @@ function wire() {
   // settings
   $('#save-settings').addEventListener('click', () => {
     prefs.avoidWeeks = Math.max(0, Math.min(26, Number($('#avoid-weeks').value) || 0));
+    const oldUrl = historyUrl();
+    prefs.historyUrl = $('#history-url').value.trim();
+    if (historyUrl() !== oldUrl) loadSharedHistory();
     prefs.emailjs = { serviceId: $('#ej-service').value.trim(), templateId: $('#ej-template').value.trim(), publicKey: $('#ej-key').value.trim() };
     save(STORE.prefs, prefs);
     toast('Settings saved');
   });
   $('#clear-history').addEventListener('click', () => {
-    if (!confirm('Forget which songs were sent in past weeks?')) return;
+    if (!confirm('Forget which songs were sent from this device? (The shared Google Sheet is not changed.)')) return;
     history = {}; save(STORE.history, history); openSettings();
   });
   $('#start-over').addEventListener('click', () => {
@@ -530,7 +581,7 @@ function wire() {
 
 async function main() {
   wire();
-  await loadSongs();
+  await Promise.all([loadSongs(), loadSharedHistory()]);
   normalizeState();
   render();
 }

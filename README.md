@@ -57,6 +57,12 @@ Every push to `main` that touches `web/` or the CSVs deploys the site with `.git
    - Account → General: copy the **Public Key**. Under Account → Security, add your Pages address (e.g. `https://ckuhns1.github.io`) to the allowed domains so nobody else can use your quota.
 3. **Secrets:** repo Settings → Secrets and variables → Actions → New repository secret: `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `EMAILJS_PUBLIC_KEY`. Then rerun the "Deploy web app to GitHub Pages" workflow (Actions tab → Run workflow).
 
+4. **Shared song history (optional, recommended when several people send):**
+   - Create a Google Sheet (e.g. "Melody song history"), then Extensions → Apps Script.
+   - Replace the editor contents with `apps-script/Code.gs`, save, then Deploy → New deployment → type **Web app**, Execute as **Me**, Who has access **Anyone** → Deploy, and authorize.
+   - Copy the web app URL (ends in `/exec`) into a repository secret `HISTORY_URL`, then rerun the deploy workflow.
+   - Every send then logs its songs to the sheet's History tab, and every device avoids songs sent recently from any device.
+
 The EmailJS public key is meant to be public (it ends up in the page), so the domain allowlist is what protects it. No Gmail app password is needed for the web app.
 
 ### Run locally
