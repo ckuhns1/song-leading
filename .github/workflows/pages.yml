@@ -54,6 +54,10 @@ jobs:
               f.write('window.SONGS_CONFIG = ' + json.dumps(config) + ';\n')
           EOF
           touch site/.nojekyll
+          # Version asset URLs so browsers pick up each deploy immediately.
+          v="${GITHUB_RUN_ID}"
+          sed -i -E "s/(config\.js|app\.js|style\.css)\"/\1?v=$v\"/g" site/index.html
+          sed -i -E "s#'\./layouts\.js'#'./layouts.js?v=$v'#" site/app.js
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
