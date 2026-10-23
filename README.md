@@ -36,6 +36,42 @@ project/
 
 ---
 
+## 🌐 Web App (GitHub Pages)
+
+The `web/` folder is a static web app ("Melody") that does everything the terminal app does, in the browser:
+
+- Random lineup for Sunday AM, Sunday PM and Wednesday, with no song repeated across the week
+- Per-song reroll, search by title or number, manual entry, verses, chorus-at-end, reorder (drag or arrows), and lock
+- Avoids songs sent in the last few weeks (history kept in the browser)
+- Recipients remembered on the device; preview, copy, print, and one-click send through [EmailJS](https://www.emailjs.com)
+
+The songs come straight from `songs_app/infra/*.csv`, and the order of worship lives in `web/layouts.js`.
+Every push to `main` that touches `web/` or the CSVs deploys the site with `.github/workflows/pages.yml`.
+
+### One-time setup
+
+1. **Turn on Pages:** repo Settings → Pages → Source: **GitHub Actions**. (Pages on a private repo needs a paid GitHub plan; otherwise make the repo public.)
+2. **EmailJS:** create a free account at emailjs.com, then
+   - Email Services → Add Service → Gmail, and sign in as the sending account. Note the **Service ID**.
+   - Email Templates → Create Template. Set **To Email** to `{{to_email}}`, **Subject** to `{{subject}}`, **Reply To** to `{{reply_to}}`, and the body (in the code editor) to `{{{message_html}}}`. Note the **Template ID**.
+   - Account → General: copy the **Public Key**. Under Account → Security, add your Pages address (e.g. `https://ckuhns1.github.io`) to the allowed domains so nobody else can use your quota.
+3. **Secrets:** repo Settings → Secrets and variables → Actions → New repository secret: `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `EMAILJS_PUBLIC_KEY`. Then rerun the "Deploy web app to GitHub Pages" workflow (Actions tab → Run workflow).
+
+The EmailJS public key is meant to be public (it ends up in the page), so the domain allowlist is what protects it. No Gmail app password is needed for the web app.
+
+### Run locally
+
+```
+mkdir -p /tmp/site/songs && cp -r web/. /tmp/site/ && cp songs_app/infra/*.csv /tmp/site/songs/
+python3 -m http.server -d /tmp/site 8000
+```
+
+Then open http://localhost:8000 and enter the EmailJS keys under ⚙️ Settings.
+
+---
+
+## 🖥️ Terminal App
+
 ## 🚀 Getting Started
 
 ### 1. Install Requirements
